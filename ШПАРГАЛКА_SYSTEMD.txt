@@ -1,0 +1,116 @@
+╔══════════════════════════════════════════════════════════════════╗
+║          🚀 ШПАРГАЛКА ПО УПРАВЛЕНИЮ БОТОМ ЧЕРЕЗ SYSTEMD          ║
+╚══════════════════════════════════════════════════════════════════╝
+
+📌 СЕРВИС: metrotech-bot
+📁 РАБОЧАЯ ДИРЕКТОРИЯ: /root/Asterisk_bot/asterisk-vox-bot
+📄 ЛОГИ: /root/Asterisk_bot/asterisk-vox-bot/bot.log
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ЕЖЕДНЕВНЫЕ КОМАНДЫ (самые важные!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Проверить статус:
+   sudo systemctl status metrotech-bot
+
+🔄 Перезапустить (после изменений кода/конфига):
+   sudo systemctl restart metrotech-bot
+
+⏸️  Остановить:
+   sudo systemctl stop metrotech-bot
+
+▶️  Запустить:
+   sudo systemctl start metrotech-bot
+
+📊 Посмотреть логи (последние 50 строк):
+   sudo journalctl -u metrotech-bot -n 50
+
+📊 Логи в реальном времени:
+   tail -f /root/Asterisk_bot/asterisk-vox-bot/bot.log
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  АВТОЗАПУСК
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Включить автозапуск при старте сервера:
+   sudo systemctl enable metrotech-bot
+
+❌ Отключить автозапуск:
+   sudo systemctl disable metrotech-bot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  БЫСТРЫЕ СЦЕНАРИИ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 После изменения .env или кода:
+   sudo systemctl restart metrotech-bot
+   sudo systemctl status metrotech-bot
+
+🔍 Проверить работает ли бот:
+   ps aux | grep stasis_handler
+   sudo systemctl status metrotech-bot
+
+📋 Посмотреть только ошибки:
+   tail -n 200 /root/Asterisk_bot/asterisk-vox-bot/bot.log | grep ERROR
+
+🔄 После git pull (обновление кода):
+   cd /root/Asterisk_bot
+   git pull
+   sudo systemctl restart metrotech-bot
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ДОПОЛНИТЕЛЬНЫЕ КОМАНДЫ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 Последние 100 строк логов:
+   sudo journalctl -u metrotech-bot -n 100
+
+📊 Логи за сегодня:
+   sudo journalctl -u metrotech-bot --since today
+
+📊 Логи с определенного времени:
+   sudo journalctl -u metrotech-bot --since "2025-10-08 10:00:00"
+
+🔧 Перезагрузить конфигурацию systemd (если менял .service):
+   sudo systemctl daemon-reload
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ЧТО ПРОВЕРЯТЬ ЕСЛИ ПРОБЛЕМЫ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1️⃣  Статус сервиса (должно быть "active (running)"):
+    sudo systemctl status metrotech-bot
+
+2️⃣  Процесс запущен:
+    ps aux | grep stasis_handler_optimized
+
+3️⃣  Подключение к Asterisk:
+    sudo asterisk -rx "stasis show apps"
+    # Должно показать: asterisk-bot
+
+4️⃣  Логи без ошибок:
+    tail -n 30 /root/Asterisk_bot/asterisk-vox-bot/bot.log | grep "✅"
+
+5️⃣  Asterisk работает:
+    sudo systemctl status asterisk
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ВАЖНО ЗНАТЬ!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Бот настроен на АВТОМАТИЧЕСКИЙ ПЕРЕЗАПУСК
+   Если он упадёт - перезапустится сам через 10 секунд
+
+✅ Бот запустится АВТОМАТИЧЕСКИ после перезагрузки сервера
+
+✅ Все логи пишутся в два места:
+   - systemd journal (sudo journalctl -u metrotech-bot)
+   - файл bot.log (/root/Asterisk_bot/asterisk-vox-bot/bot.log)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 Подробная документация: /root/Asterisk_bot/SYSTEMD_УПРАВЛЕНИЕ.md
+
+Дата создания: 08.10.2025
+Статус: ✅ Настроено и работает
+
