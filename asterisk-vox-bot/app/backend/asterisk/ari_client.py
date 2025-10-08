@@ -137,6 +137,30 @@ class AsteriskARIClient:
         except Exception as e:
             logger.error(f"❌ Ошибка остановки записи: {e}")
             return False
+    
+    async def stop_playback(self, playback_id):
+        """
+        Останавливает воспроизведение по ID.
+        
+        Args:
+            playback_id: ID воспроизведения (из play_sound)
+            
+        Returns:
+            bool: True если остановлено успешно
+        """
+        try:
+            url = f"{self.base_url}/playbacks/{playback_id}"
+            async with self.session.delete(url) as response:
+                if response.status in (200, 204):
+                    logger.info(f"✅ Playback {playback_id} остановлен")
+                    return True
+                else:
+                    error_text = await response.text()
+                    logger.warning(f"⚠️ Не удалось остановить playback {playback_id}: {response.status} - {error_text}")
+                    return False
+        except Exception as e:
+            logger.error(f"❌ Ошибка остановки playback {playback_id}: {e}")
+            return False
 
     async def hold_channel(self, channel_id):
         """
