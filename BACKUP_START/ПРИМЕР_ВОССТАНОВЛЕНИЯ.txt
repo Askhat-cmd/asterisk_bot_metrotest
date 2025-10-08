@@ -1,0 +1,99 @@
+═══════════════════════════════════════════════════════════════════
+  ПРИМЕР: КАК ВОССТАНОВИТЬ ПРОЕКТ ИЗ БЕКАПА
+═══════════════════════════════════════════════════════════════════
+
+📦 СТРУКТУРА БЕКАПА:
+--------------------
+Бекап содержит:
+  Asterisk_bot/
+  ├── asterisk-vox-bot/         (весь проект)
+  ├── BACKUP_START/             (скрипты бекапа)
+  │   ├── create_backup.sh
+  │   ├── BACKUP_README.md
+  │   └── ...
+  ├── OPTIMIZATION_TASK_CLAUDE.md
+  ├── README.md
+  └── ... (все остальное из корня)
+
+
+🔄 ПОЛНОЕ ВОССТАНОВЛЕНИЕ (ВСЕ ФАЙЛЫ):
+--------------------------------------
+
+Шаг 1: Перейти в /root
+cd /root
+
+Шаг 2: Извлечь бекап
+tar -xzf Asterisk_bot/project_backup/backup_20251007_084530.tar.gz
+
+✅ Результат:
+   Все файлы восстановлены на свои места в /root/Asterisk_bot/
+
+
+🔧 ЧАСТИЧНОЕ ВОССТАНОВЛЕНИЕ:
+----------------------------
+
+Восстановить только документацию из корня:
+cd /root
+tar -xzf Asterisk_bot/project_backup/backup_20251007_084530.tar.gz \
+    Asterisk_bot/OPTIMIZATION_TASK_CLAUDE.md \
+    Asterisk_bot/README.md \
+    Asterisk_bot/BACKUP_START/
+
+
+Восстановить один файл проекта:
+cd /root
+tar -xzf Asterisk_bot/project_backup/backup_20251007_084530.tar.gz \
+    Asterisk_bot/asterisk-vox-bot/app/backend/asterisk/stasis_handler_optimized.py
+
+
+Восстановить всю папку:
+cd /root
+tar -xzf Asterisk_bot/project_backup/backup_20251007_084530.tar.gz \
+    Asterisk_bot/asterisk-vox-bot/app/backend/
+
+
+👀 ПРОСМОТР СОДЕРЖИМОГО БЕКАПА:
+-------------------------------
+
+Показать все файлы в бекапе:
+tar -tzf /root/Asterisk_bot/project_backup/backup_20251007_084530.tar.gz
+
+Показать только первые 50 файлов:
+tar -tzf /root/Asterisk_bot/project_backup/backup_20251007_084530.tar.gz | head -50
+
+Найти конкретный файл в бекапе:
+tar -tzf /root/Asterisk_bot/project_backup/backup_20251007_084530.tar.gz | grep "stasis_handler"
+
+
+⚠️ ВАЖНЫЕ ЗАМЕЧАНИЯ:
+--------------------
+
+1. ВСЕГДА извлекайте из /root/, а не из /root/Asterisk_bot/
+   
+   ✅ ПРАВИЛЬНО:
+   cd /root
+   tar -xzf Asterisk_bot/project_backup/backup.tar.gz
+   
+   ❌ НЕПРАВИЛЬНО:
+   cd /root/Asterisk_bot
+   tar -xzf project_backup/backup.tar.gz
+
+
+2. При полном восстановлении файлы ПЕРЕЗАПИШУТСЯ
+   Если нужно сохранить текущие файлы, сначала сделайте новый бекап!
+
+
+3. Проверьте содержимое бекапа перед восстановлением:
+   tar -tzf /root/Asterisk_bot/project_backup/backup.tar.gz | head
+
+
+4. После восстановления может потребоваться:
+   - Пересоздать venv (если восстанавливали проект)
+   - Проверить .env файл (он НЕ включается в бекап)
+   - Перезапустить бота
+
+
+═══════════════════════════════════════════════════════════════════
+Для подробной информации: см. BACKUP_README.md
+═══════════════════════════════════════════════════════════════════
+

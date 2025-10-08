@@ -1,0 +1,36 @@
+# Virtual Environment
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Data and database files
+data/
+chroma_db_metrotech/
+nohup.out
+logs/
+*.tar.gz
+
+# IDE and OS specific files
+.vscode/
+.idea/
+.DS_Store
+
+# Backup folders
+backup_*/
+АРХИВ_БЕКАП/
+Новый дизайн для вебки/
+cursor_langchain_vox_bot.md
+
+# Backup env
+.env.bak
+
+# Call logs
+*_20??-??-??.txt
+3847228052_2025-08-08.txt
+
+# Call logs
+*_20??-??-??.txt
+3847228052_2025-08-08.txt
