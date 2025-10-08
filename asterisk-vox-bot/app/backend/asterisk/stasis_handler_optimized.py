@@ -396,10 +396,8 @@ class OptimizedAsteriskAIHandler:
                     # Обрабатываем AI ответы через streaming с chunked TTS
                     await self.process_ai_response_streaming_with_chunked_tts(channel_id, response_generator)
                     
-                    # НЕ ждем завершения filler - он уже сыгран параллельно!
-                    # (Но на всякий случай проверяем что не осталось висеть)
-                    if not filler_task.done():
-                        await filler_task
+                    # ✅ ИСПРАВЛЕНО: Филлер уже проигран синхронно, не нужно ждать task
+                    # Филлер проигрался полностью (0.7 сек задержка) перед запуском AI
                     
                     total_time = time.time() - overall_start
                     logger.info(f"✅ ОПТМЗРОВАННАЯ обработка завершена: {total_time:.2f}s")
