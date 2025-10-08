@@ -1386,6 +1386,12 @@ class OptimizedAsteriskAIHandler:
 
         call_data["is_speaking"] = False
         call_data["current_playback"] = None
+        
+        # ✅ КРИТИЧНО: Удаляем playback из трекинга ParallelTTS
+        if self.parallel_tts and playback_id:
+            if channel_id in self.parallel_tts.active_playbacks:
+                self.parallel_tts.active_playbacks[channel_id].discard(playback_id)
+                logger.debug(f"🧹 Removed playback {playback_id} from tracking")
 
         if bridge_id:
             logger.info("Playback finished on bridge %s for channel %s: %s", bridge_id, channel_id, playback_id)
