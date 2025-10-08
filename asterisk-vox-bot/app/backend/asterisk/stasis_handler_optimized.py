@@ -1390,8 +1390,10 @@ class OptimizedAsteriskAIHandler:
         # ✅ КРИТИЧНО: Удаляем playback из трекинга ParallelTTS
         if self.parallel_tts and playback_id:
             if channel_id in self.parallel_tts.active_playbacks:
+                before_count = len(self.parallel_tts.active_playbacks[channel_id])
                 self.parallel_tts.active_playbacks[channel_id].discard(playback_id)
-                logger.debug(f"🧹 Removed playback {playback_id} from tracking")
+                after_count = len(self.parallel_tts.active_playbacks[channel_id])
+                logger.info(f"🧹 Removed playback {playback_id[:8]}... from tracking: {before_count} → {after_count} active")
 
         if bridge_id:
             logger.info("Playback finished on bridge %s for channel %s: %s", bridge_id, channel_id, playback_id)
@@ -1404,14 +1406,15 @@ class OptimizedAsteriskAIHandler:
             logger.info("Recording already in progress for %s, skip restart", channel_id)
             return
 
-        # ✅ КРИТИЧНО: Проверяем АКТИВНЫЕ TTS ЗАДАЧИ + ОЧЕРЕДЬ перед запуском VAD
+        # ✅ КРИТИЧНО: Проверяем АКТИВНЫЕ TTS ЗАДАЧИ + ОЧЕРЕДЬ + ИГРАЮЩИЕ PLAYBACK перед запуском VAD
         # Проблема: chunk может быть в процессе генерации, но еще не в очереди!
         if self.parallel_tts:
             active_tts = len(self.parallel_tts.tts_tasks.get(channel_id, []))
             queued_chunks = len(self.parallel_tts.playback_queues.get(channel_id, []))
+            active_playbacks = len(self.parallel_tts.active_playbacks.get(channel_id, set()))
             
-            if active_tts > 0 or queued_chunks > 0:
-                logger.info(f"⏳ ParallelTTS активен: {active_tts} TTS tasks + {queued_chunks} queued, VAD НЕ запускаем")
+            if active_tts > 0 or queued_chunks > 0 or active_playbacks > 0:
+                logger.info(f"⏳ ParallelTTS активен: {active_tts} TTS tasks + {queued_chunks} queued + {active_playbacks} playing, VAD НЕ запускаем")
                 return
 
         # ТОЛЬКО ЕСЛИ НЕТ АКТИВНЫХ TTS И ОЧЕРЕДЬ ПУСТА - запускаем VAD
