@@ -1,578 +1,602 @@
-2025-10-08 05:35:39,807 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'Да, у нас есть различные модел...'
-2025-10-08 05:35:39,807 - __main__ - INFO - 📝 HYBRID: Registered playback start: 9a73f51c... for channel 1759901728.122
-2025-10-08 05:35:39,807 - __main__ - INFO - Playback started for channel 1759901728.122: 9a73f51c-a3ac-442e-84de-caa91e9b7985
-2025-10-08 05:35:45,269 - __main__ - INFO - Playback finished for channel 1759901728.122: 9a73f51c-a3ac-442e-84de-caa91e9b7985
-2025-10-08 05:35:45,274 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759901728.122
-2025-10-08 05:35:45,275 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759901728.122: TTS=0.22s
-2025-10-08 05:35:45,275 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759901728.122
-2025-10-08 05:35:45,284 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759901728.122_20251008_053545_284255_6114453b, max_duration=8.0s
-2025-10-08 05:35:45,286 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759901728.122_20251008_053545_284255_6114453b на канале 1759901728.122
-2025-10-08 05:35:45,288 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053545_284255_6114453b
-2025-10-08 05:35:45,288 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:35:45,288 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:35:45,288 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759901728.122
-2025-10-08 05:35:45,288 - __main__ - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053545_284255_6114453b
-2025-10-08 05:35:46,794 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759901728.122 (длительность: 1.5s)
-2025-10-08 05:35:47,998 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759901728.122 (тишина: 1.2s, общая запись: 2.7s)
-2025-10-08 05:35:47,999 - __main__ - INFO - 🎯 VAD callback: 1759901728.122, recording=user_1759901728.122_20251008_053545_284255_6114453b, reason=silence_detected
-2025-10-08 05:35:48,001 - __main__ - INFO - ✅ VAD остановил запись user_1759901728.122_20251008_053545_284255_6114453b для канала 1759901728.122
-2025-10-08 05:35:48,002 - __main__ - INFO - 🎤 Запись завершена: user_1759901728.122_20251008_053545_284255_6114453b
-2025-10-08 05:35:48,002 - __main__ - INFO - ✅ Найден канал 1759901728.122 для записи user_1759901728.122_20251008_053545_284255_6114453b
-2025-10-08 05:35:48,002 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759901728.122
-2025-10-08 05:35:48,002 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759901728.122_20251008_053545_284255_6114453b.wav
-2025-10-08 05:35:48,002 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:35:48,002 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
-2025-10-08 05:35:48,002 - __main__ - INFO - ✅ Аудио файл проверен: 43244 bytes
-2025-10-08 05:35:48,002 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759901728.122_20251008_053545_284255_6114453b.wav
-2025-10-08 05:35:48,003 - __main__ - INFO - ⏰ Таймер звонка 1759901728.122 отменен
-2025-10-08 05:35:48,003 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759901728.122
-2025-10-08 05:35:48,003 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759901728.122_20251008_053545_284255_6114453b.wav
-2025-10-08 05:35:48,003 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:35:48,003 - __main__ - INFO - 🎯 Запись для канала 1759901728.122 уже обрабатывается, пропускаем дублирование
-2025-10-08 05:35:48,003 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759901728.122: silence_detected
-2025-10-08 05:35:48,003 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43244 bytes, language=ru-RU
-2025-10-08 05:35:48,278 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Меня интересует на с усилием 300'
-2025-10-08 05:35:48,279 - __main__ - INFO - 🎤 Пользователь сказал: 'Меня интересует на с усилием 300' → 'Меня интересует на с усилием 300'
-2025-10-08 05:35:48,279 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Меня интересует на с усилием 300', 'normalized_text': 'Меня интересует на с усилием 300', 'length': 32, 'word_count': 6, 'has_digits': True, 'has_tech_terms': ['н', 'м', 'т', 'а'], 'has_question_words': [], 'category': 'informative', 'is_informative': True}
-2025-10-08 05:35:48,280 - __main__ - INFO - ✅ Речь информативна: 'Меня интересует на с усилием 300' - продолжаем обработку
-2025-10-08 05:35:48,280 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
-2025-10-08 05:35:48,280 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759901728.122
-2025-10-08 05:35:48,280 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
-2025-10-08 05:35:48,280 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
-2025-10-08 05:35:48,280 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
-2025-10-08 05:35:48,280 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
-2025-10-08 05:35:48,281 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759901728.122_053548280.wav (10374 bytes)
-2025-10-08 05:35:48,281 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759901728.122_053548280 на канале 1759901728.122
-2025-10-08 05:35:48,283 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "281fd6b9-2ce0-4e49-9644-270a590845b3",
-  "media_uri": "sound:stream_1759901728.122_053548280",
-  "target_uri": "channel:1759901728.122",
+root@xqqbqvfjda:~/Asterisk_bot# cd /root/Asterisk_bot/asterisk-vox-bot
+
+# Активируем виртуальное окружение
+source venv/bin/activate
+
+
+# Убить процесс
+pkill -f stasis_handler_optimized.py
+
+# Основной скрипт
+python app/backend/asterisk/stasis_handler_optimized.py
+2025-10-08 10:41:07,752 - app.backend.rag.agent - INFO - --- Инициализация Агента 'Метротест' ---
+2025-10-08 10:41:07,752 - app.backend.rag.agent - INFO - LLM конфигурация: PRIMARY model='gpt-4o-mini', temperature=0.2
+2025-10-08 10:41:08,070 - app.backend.rag.agent - INFO - ✅ Redis кеширование включено
+2025-10-08 10:41:08,070 - app.backend.rag.agent - INFO - Загрузка промптов из файла: 'config/prompts.json'
+2025-10-08 10:41:08,071 - app.backend.rag.agent - INFO - Инициализация или перезагрузка RAG-цепочки...
+2025-10-08 10:41:08,071 - app.backend.rag.agent - INFO - Подключение к векторной базе в 'data/chroma/chroma_db_metrotech'...
+2025-10-08 10:41:08,160 - app.backend.rag.agent - INFO - ✅ Используем кешированные embeddings
+2025-10-08 10:41:08,201 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-10-08 10:41:08,303 - app.backend.rag.agent - INFO - Подключение к базе данных успешно.
+2025-10-08 10:41:08,304 - app.backend.rag.agent - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем простые retriever'ы без history_aware для ускорения
+2025-10-08 10:41:08,311 - app.backend.rag.agent - INFO - --- RAG-цепочка успешно создана/обновлена ---
+2025-10-08 10:41:08,311 - app.backend.rag.agent - INFO - 🔥 Pre-warming кеша для 12 популярных вопросов...
+2025-10-08 10:41:08,314 - app.backend.rag.agent - INFO - ✅ Pre-warming завершен: 0 новых, 12 уже в кеше
+2025-10-08 10:41:08,315 - app.backend.rag.agent - INFO - --- Агент 'Метротест' успешно инициализирован ---
+2025-10-08 10:41:08,315 - __main__ - INFO - ✅ AI Agent успешно инициализирован
+2025-10-08 10:41:08,326 - app.backend.services.yandex_asr_service - INFO - Yandex ASR Service инициализирован: language=ru-RU, model=general
+2025-10-08 10:41:08,327 - app.backend.services.yandex_asr_service - INFO - 🔄 IAM токен будет обновляться автоматически каждые 12 часов
+2025-10-08 10:41:08,327 - app.backend.services.asr_service - INFO - ✅ Yandex ASR сервис инициализирован
+2025-10-08 10:41:08,327 - app.backend.services.asr_service - INFO - ASR Service инициализирован: model=general, language=ru-RU
+2025-10-08 10:41:08,327 - __main__ - INFO - ✅ ASR сервис инициализирован
+2025-10-08 10:41:08,327 - __main__ - INFO - 🚀 OptimizedAsteriskAIHandler инициализирован
+2025-10-08 10:41:08,327 - __main__ - INFO - 🔄 нициализация сервисов оптимизации...
+2025-10-08 10:41:08,327 - app.backend.services.yandex_grpc_tts - INFO - 🚀 YandexGrpcTTS инициализирован
+2025-10-08 10:41:08,339 - app.backend.services.yandex_grpc_tts - INFO - ✅ gRPC TTS channel initialized
+2025-10-08 10:41:08,339 - app.backend.services.yandex_grpc_tts - INFO - 🚀 YandexGrpcTTS инициализирован
+2025-10-08 10:41:08,348 - app.backend.services.yandex_tts_service - INFO - ✅ gRPC соединение с Yandex TTS установлено
+2025-10-08 10:41:08,349 - app.backend.services.yandex_tts_service - INFO - 🚀 Yandex TTS Service с gRPC streaming инициализирован
+2025-10-08 10:41:08,349 - app.backend.services.tts_adapter - INFO - 🚀 TTSAdapter инициализирован с gRPC + HTTP fallback
+2025-10-08 10:41:08,349 - app.backend.services.yandex_grpc_tts - INFO - ✅ gRPC TTS channel initialized
+2025-10-08 10:41:08,349 - app.backend.services.tts_adapter - INFO - ✅ TTSAdapter initialized with gRPC + HTTP fallback
+2025-10-08 10:41:08,349 - app.backend.services.filler_tts - INFO - 🎵 InstantFillerTTS инициализирован
+2025-10-08 10:41:08,349 - app.backend.services.filler_tts - INFO - 🔄 Инициализация Filler TTS...
+2025-10-08 10:41:09,883 - app.backend.services.yandex_grpc_tts - INFO - 🔑 IAM токен обновлен
+2025-10-08 10:41:10,028 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 1.68s for 'Хм,...', size=10374 bytes
+2025-10-08 10:41:10,029 - app.backend.services.yandex_grpc_tts - WARNING - 🐌 gRPC TTS slow: 1.68s > 0.25s target
+2025-10-08 10:41:10,029 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Хм,' (10374 bytes)
+2025-10-08 10:41:10,029 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Хм,'
+2025-10-08 10:41:10,118 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.09s for 'Так,...', size=9816 bytes
+2025-10-08 10:41:10,119 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Так,' (9816 bytes)
+2025-10-08 10:41:10,119 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Так,'
+2025-10-08 10:41:10,206 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.09s for 'Итак,...', size=12788 bytes
+2025-10-08 10:41:10,206 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Итак,' (12788 bytes)
+2025-10-08 10:41:10,207 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Итак,'
+2025-10-08 10:41:10,292 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.09s for 'Понятно,...', size=15204 bytes
+2025-10-08 10:41:10,293 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Понятно,' (15204 bytes)
+2025-10-08 10:41:10,293 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Понятно,'
+2025-10-08 10:41:10,389 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.10s for 'Сейчас,...', size=13904 bytes
+2025-10-08 10:41:10,389 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Сейчас,' (13904 bytes)
+2025-10-08 10:41:10,389 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Сейчас,'
+2025-10-08 10:41:10,491 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.10s for 'Хорошо,...', size=15018 bytes
+2025-10-08 10:41:10,492 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Хорошо,' (15018 bytes)
+2025-10-08 10:41:10,492 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Хорошо,'
+2025-10-08 10:41:10,595 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.10s for 'Отлично,...', size=16504 bytes
+2025-10-08 10:41:10,596 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Отлично,' (16504 bytes)
+2025-10-08 10:41:10,596 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Отлично,'
+2025-10-08 10:41:10,683 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.09s for 'Понял,...', size=11674 bytes
+2025-10-08 10:41:10,683 - app.backend.services.filler_tts - INFO - ✅ Filler synthesized via gRPC: 'Понял,' (11674 bytes)
+2025-10-08 10:41:10,683 - app.backend.services.filler_tts - INFO - ✅ Cached filler: 'Понял,'
+2025-10-08 10:41:10,683 - app.backend.services.filler_tts - INFO - ✅ Filler TTS initialized with cached responses
+2025-10-08 10:41:10,683 - app.backend.services.parallel_tts - INFO - 🔄 ParallelTTSProcessor инициализирован с 3 TTS workers
+2025-10-08 10:41:10,683 - app.backend.services.smart_speech_detector - INFO - SmartSpeechDetector инициализирован: silence_timeout=1.2s, min_speech_duration=0.5s
+2025-10-08 10:41:10,684 - app.backend.services.speech_filter - INFO - SpeechFilter инициализирован
+2025-10-08 10:41:10,684 - __main__ - INFO - ✅ Умная детекция речи включена: timeout=1.2s, min_duration=0.5s
+2025-10-08 10:41:10,684 - app.backend.services.simple_vad_service - INFO - SimpleVADService инициализирован: silence_timeout=1.2s, min_recording_time=1.5s, max_recording_time=6.0s
+2025-10-08 10:41:10,684 - app.backend.services.simple_vad_service - INFO - ✅ SimpleVADService создан с конфигурацией из .env
+2025-10-08 10:41:10,684 - __main__ - INFO - ✅ VAD сервис включен для уменьшения паузы после речи
+2025-10-08 10:41:10,684 - __main__ - INFO - ✅ Все сервисы оптимизации инициализированы
+2025-10-08 10:41:10,684 - __main__ - INFO - 🧹 Очистка висящих каналов...
+2025-10-08 10:41:10,688 - __main__ - INFO - ✅ Висящих каналов не найдено
+2025-10-08 10:41:10,705 - __main__ - INFO - ✅ Подключен к Asterisk ARI WebSocket
+2025-10-08 10:41:16,026 - __main__ - INFO - 🔔 Новый звонок: Channel=1759920075.140, Caller=79613566065
+2025-10-08 10:41:16,026 - __main__ - INFO - ✅ Звонок уже принят в dialplan: 1759920075.140
+2025-10-08 10:41:16,029 - app.backend.asterisk.ari_client - INFO - ✅ Канал 1759920075.140 успешно отвечен
+2025-10-08 10:41:16,029 - __main__ - INFO - ✅ Канал 1759920075.140 отвечен для ARI playback
+2025-10-08 10:41:16,130 - __main__ - INFO - 🚀 Используем исправленный gRPC TTS (8kHz)
+2025-10-08 10:41:16,131 - app.backend.services.yandex_tts_service - INFO - ✅ gRPC соединение с Yandex TTS установлено
+2025-10-08 10:41:16,131 - app.backend.services.yandex_tts_service - INFO - 🚀 Yandex TTS Service с gRPC streaming инициализирован
+2025-10-08 10:41:16,216 - app.backend.services.yandex_tts_service - INFO - 🔑 IAM токен обновлен
+2025-10-08 10:41:16,219 - app.backend.services.yandex_tts_service - INFO - 🚀 gRPC TTS запрос: Здравствуйте, Вы позвонили в компанию "Метротэст"....
+2025-10-08 10:41:16,418 - app.backend.services.yandex_tts_service - INFO - ⚡ gRPC TTS готов (8kHz WAV): stream_1759920075.140_104116131_b77c79a6b8df7ff370a31554277e94c6.wav, размер=75204 bytes
+2025-10-08 10:41:16,418 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759920075.140_104116131_b77c79a6b8df7ff370a31554277e94c6 на канале 1759920075.140
+2025-10-08 10:41:16,422 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "d2783318-f375-44e6-8bf9-adb118c6cb60",
+  "media_uri": "sound:stream_1759920075.140_104116131_b77c79a6b8df7ff370a31554277e94c6",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:35:48,283 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=281fd6b9-2ce0-4e49-9644-270a590845b3
-2025-10-08 05:35:48,283 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: 281fd6b9-2ce0-4e49-9644-270a590845b3
-2025-10-08 05:35:48,284 - __main__ - INFO - ⚡ Filler played: 0.00s
-2025-10-08 05:35:48,481 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
-2025-10-08 05:35:48,481 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759901728.122
-2025-10-08 05:35:48,481 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Меня интересует на с усилием 300...'
-2025-10-08 05:35:48,481 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
-2025-10-08 05:35:48,481 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: tech
-2025-10-08 05:35:48,482 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
-2025-10-08 05:35:48,482 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
-2025-10-08 05:35:48,482 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
-2025-10-08 05:35:48,482 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
-2025-10-08 05:35:48,498 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.016с
-2025-10-08 05:35:48,500 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
-2025-10-08 05:35:48,505 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
-2025-10-08 05:35:49,149 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
-2025-10-08 05:35:49,159 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 0.652с)
-2025-10-08 05:35:51,476 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2025-10-08 05:35:51,520 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 3.039с
-2025-10-08 05:35:51,930 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'У нас есть испытательный пресс...'
-2025-10-08 05:35:51,930 - __main__ - INFO - 🔊 FORCED CHUNK 1 (48 chars): 'У нас есть испытательный пресс...'
-2025-10-08 05:35:52,092 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 2 immediately: 'предназначенный для испытаний ...'
-2025-10-08 05:35:52,092 - __main__ - INFO - 🔊 DELIMITER CHUNK 2: 'предназначенный для испытаний ...'
-2025-10-08 05:35:52,110 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 3.629с, чанков: 30
-2025-10-08 05:35:52,110 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 3.629с, токенов: 28, предложений: 2
-2025-10-08 05:35:52,111 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 4.11s
-2025-10-08 05:35:52,111 - __main__ - INFO - 📊 Performance metrics for 1759901728.122: {'total_time': 4.108458757400513, 'asr_complete_time': 1759901748.279523, 'first_chunk_time': None, 'first_audio_time': 0.005961179733276367, 'filler_time': 0.0034635066986083984}
-2025-10-08 05:35:52,111 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
-2025-10-08 05:35:52,118 - __main__ - INFO - 💾 Лог сохранён для Session 1e094ef3-a035-4511-ab96-a5453dd12a36
-2025-10-08 05:35:52,118 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759901728.122
-2025-10-08 05:35:52,118 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759901728.122 (30 сек)
-2025-10-08 05:35:52,118 - __main__ - INFO - 📝 HYBRID: Registered playback start: 281fd6b9... for channel 1759901728.122
-2025-10-08 05:35:52,118 - __main__ - INFO - Playback started for channel 1759901728.122: 281fd6b9-2ce0-4e49-9644-270a590845b3
-2025-10-08 05:35:52,131 - __main__ - INFO - Playback finished for channel 1759901728.122: 281fd6b9-2ce0-4e49-9644-270a590845b3
-2025-10-08 05:35:52,145 - __main__ - INFO - ⏳ ParallelTTS активен: 2 TTS tasks + 0 queued, VAD НЕ запускаем
-2025-10-08 05:35:52,193 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.26s for 'У нас есть испытательный пресс...', size=61830 bytes
-2025-10-08 05:35:52,193 - app.backend.services.yandex_grpc_tts - WARNING - 🐌 gRPC TTS slow: 0.26s > 0.25s target
-2025-10-08 05:35:52,193 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.26s, size=61830 bytes
-2025-10-08 05:35:52,193 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759901728.122_053552193_1.wav (61830 bytes)
-2025-10-08 05:35:52,194 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759901728.122_053552193_1 (канал 1759901728.122)
-2025-10-08 05:35:52,194 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759901728.122_053552193_1 на канале 1759901728.122
-2025-10-08 05:35:52,195 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "f19b6bc2-53f4-455b-b034-570727c49280",
-  "media_uri": "sound:chunk_1759901728.122_053552193_1",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:16,422 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=d2783318-f375-44e6-8bf9-adb118c6cb60
+2025-10-08 10:41:16,422 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: d2783318-f375-44e6-8bf9-adb118c6cb60
+2025-10-08 10:41:16,422 - __main__ - INFO - 🎤 Готов к приему речи от 79613566065
+2025-10-08 10:41:16,423 - __main__ - INFO - 📝 HYBRID: Registered playback start: d2783318... for channel 1759920075.140
+2025-10-08 10:41:16,423 - __main__ - INFO - Playback started for channel 1759920075.140: d2783318-f375-44e6-8bf9-adb118c6cb60
+2025-10-08 10:41:21,117 - __main__ - INFO - Playback finished for channel 1759920075.140: d2783318-f375-44e6-8bf9-adb118c6cb60
+2025-10-08 10:41:21,133 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759920075.140_20251008_104121_133178_8a054060, max_duration=8.0s
+2025-10-08 10:41:21,135 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759920075.140_20251008_104121_133178_8a054060 на канале 1759920075.140
+2025-10-08 10:41:21,137 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104121_133178_8a054060
+2025-10-08 10:41:21,137 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:21,138 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:21,138 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759920075.140
+2025-10-08 10:41:21,138 - __main__ - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104121_133178_8a054060
+2025-10-08 10:41:22,645 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759920075.140 (длительность: 1.5s)
+2025-10-08 10:41:23,850 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759920075.140 (тишина: 1.2s, общая запись: 2.7s)
+2025-10-08 10:41:23,850 - __main__ - INFO - 🎯 VAD callback: 1759920075.140, recording=user_1759920075.140_20251008_104121_133178_8a054060, reason=silence_detected
+2025-10-08 10:41:23,853 - __main__ - INFO - ✅ VAD остановил запись user_1759920075.140_20251008_104121_133178_8a054060 для канала 1759920075.140
+2025-10-08 10:41:23,854 - __main__ - INFO - 🎤 Запись завершена: user_1759920075.140_20251008_104121_133178_8a054060
+2025-10-08 10:41:23,854 - __main__ - INFO - ✅ Найден канал 1759920075.140 для записи user_1759920075.140_20251008_104121_133178_8a054060
+2025-10-08 10:41:23,854 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759920075.140
+2025-10-08 10:41:23,854 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759920075.140_20251008_104121_133178_8a054060.wav
+2025-10-08 10:41:23,854 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
+2025-10-08 10:41:23,854 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
+2025-10-08 10:41:23,854 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759920075.140_20251008_104121_133178_8a054060.wav
+2025-10-08 10:41:23,854 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759920075.140
+2025-10-08 10:41:23,855 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759920075.140_20251008_104121_133178_8a054060.wav
+2025-10-08 10:41:23,855 - __main__ - INFO - 🎯 Запись для канала 1759920075.140 уже обрабатывается, пропускаем дублирование
+2025-10-08 10:41:23,855 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759920075.140: silence_detected
+2025-10-08 10:41:23,907 - app.backend.services.yandex_asr_service - INFO - ✅ IAM токен обновлен! Действует до: 2025-10-08 22:41:16.206487+00:00
+2025-10-08 10:41:23,909 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
+2025-10-08 10:41:24,222 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Это тестовый звонок я хочу понять как'
+2025-10-08 10:41:24,223 - __main__ - INFO - 🎤 Пользователь сказал: 'Это тестовый звонок я хочу понять как' → 'Это тестовый звонок я хочу понять как'
+2025-10-08 10:41:24,224 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Это тестовый звонок я хочу понять как', 'normalized_text': 'Это тестовый звонок я хочу понять как', 'length': 37, 'word_count': 7, 'has_digits': False, 'has_tech_terms': ['н', 'т', 'в', 'а'], 'has_question_words': ['как'], 'category': 'informative', 'is_informative': True}
+2025-10-08 10:41:24,224 - __main__ - INFO - ✅ Речь информативна: 'Это тестовый звонок я хочу понять как' - продолжаем обработку
+2025-10-08 10:41:24,224 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
+2025-10-08 10:41:24,224 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759920075.140
+2025-10-08 10:41:24,224 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
+2025-10-08 10:41:24,224 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
+2025-10-08 10:41:24,224 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
+2025-10-08 10:41:24,225 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
+2025-10-08 10:41:24,225 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759920075.140_104124225.wav (10374 bytes)
+2025-10-08 10:41:24,225 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759920075.140_104124225 на канале 1759920075.140
+2025-10-08 10:41:24,229 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "bc8bcd60-63ef-4abf-9cb1-4af050e407b2",
+  "media_uri": "sound:stream_1759920075.140_104124225",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:35:52,195 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=f19b6bc2-53f4-455b-b034-570727c49280
-2025-10-08 05:35:52,195 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'У нас есть испытательный пресс...'
-2025-10-08 05:35:52,195 - __main__ - INFO - 📝 HYBRID: Registered playback start: f19b6bc2... for channel 1759901728.122
-2025-10-08 05:35:52,195 - __main__ - INFO - Playback started for channel 1759901728.122: f19b6bc2-53f4-455b-b034-570727c49280
-2025-10-08 05:35:52,243 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.14s for 'предназначенный для испытаний ...', size=65544 bytes
-2025-10-08 05:35:52,243 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 2: 0.14s, size=65544 bytes
-2025-10-08 05:35:52,243 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 2 → 1 active for 1759901728.122
-2025-10-08 05:35:56,055 - __main__ - INFO - Playback finished for channel 1759901728.122: f19b6bc2-53f4-455b-b034-570727c49280
-2025-10-08 05:35:56,060 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759901728.122
-2025-10-08 05:35:56,060 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759901728.122: TTS=0.26s
-2025-10-08 05:35:56,061 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 2: /usr/share/asterisk/sounds/ru/chunk_1759901728.122_053556060_2.wav (65544 bytes)
-2025-10-08 05:35:56,061 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 2: chunk_1759901728.122_053556060_2 (канал 1759901728.122)
-2025-10-08 05:35:56,062 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759901728.122_053556060_2 на канале 1759901728.122
-2025-10-08 05:35:56,063 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "8db83a8c-1815-4524-aa8e-3590d4d3ae93",
-  "media_uri": "sound:chunk_1759901728.122_053556060_2",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:24,229 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=bc8bcd60-63ef-4abf-9cb1-4af050e407b2
+2025-10-08 10:41:24,229 - __main__ - INFO - 🔊 FIRST AUDIO PLAYED (dialplan): 0.006s after ASR
+2025-10-08 10:41:24,229 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: bc8bcd60-63ef-4abf-9cb1-4af050e407b2
+2025-10-08 10:41:24,230 - __main__ - INFO - ⏳ Ждём проигрывание филлера (bc8bcd60-63ef-4abf-9cb1-4af050e407b2)... 0.8 сек
+2025-10-08 10:41:25,031 - __main__ - INFO - ⚡ Filler played: 0.81s
+2025-10-08 10:41:25,031 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
+2025-10-08 10:41:25,031 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759920075.140
+2025-10-08 10:41:25,031 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Это тестовый звонок я хочу понять как...'
+2025-10-08 10:41:25,031 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
+2025-10-08 10:41:25,031 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
+2025-10-08 10:41:25,031 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
+2025-10-08 10:41:25,031 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
+2025-10-08 10:41:25,031 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
+2025-10-08 10:41:25,031 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
+2025-10-08 10:41:25,055 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
+2025-10-08 10:41:25,056 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.025с
+2025-10-08 10:41:25,060 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
+2025-10-08 10:41:25,829 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-10-08 10:41:25,835 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 0.778с)
+2025-10-08 10:41:27,541 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-08 10:41:27,604 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 2.573с
+2025-10-08 10:41:27,848 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Пожалуйста, уточните, что имен...'
+2025-10-08 10:41:27,848 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'Пожалуйста, уточните, что имен...'
+2025-10-08 10:41:27,853 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 2.822с, чанков: 16
+2025-10-08 10:41:27,854 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 2.823с, токенов: 14, предложений: 1
+2025-10-08 10:41:27,854 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 4.00s
+2025-10-08 10:41:27,854 - __main__ - INFO - 📊 Performance metrics for 1759920075.140: {'total_time': 3.9999494552612305, 'asr_complete_time': 1759920084.2235591, 'first_chunk_time': None, 'first_audio_time': 0.006125688552856445, 'filler_time': 0.8063347339630127}
+2025-10-08 10:41:27,854 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
+2025-10-08 10:41:27,862 - __main__ - INFO - 💾 Лог сохранён для Session d687257d-03a2-41e2-88df-67f4bed2965f
+2025-10-08 10:41:27,862 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759920075.140
+2025-10-08 10:41:27,862 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759920075.140 (30 сек)
+2025-10-08 10:41:27,863 - __main__ - INFO - 📝 HYBRID: Registered playback start: bc8bcd60... for channel 1759920075.140
+2025-10-08 10:41:27,863 - __main__ - INFO - Playback started for channel 1759920075.140: bc8bcd60-63ef-4abf-9cb1-4af050e407b2
+2025-10-08 10:41:27,873 - __main__ - INFO - Playback finished for channel 1759920075.140: bc8bcd60-63ef-4abf-9cb1-4af050e407b2
+2025-10-08 10:41:27,882 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
+2025-10-08 10:41:27,962 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.11s for 'Пожалуйста, уточните, что имен...', size=41024 bytes
+2025-10-08 10:41:27,963 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.11s, size=41024 bytes
+2025-10-08 10:41:27,964 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759920075.140_104127963_1.wav (41024 bytes)
+2025-10-08 10:41:27,964 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759920075.140_104127963_1 (канал 1759920075.140)
+2025-10-08 10:41:27,964 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759920075.140_104127963_1 на канале 1759920075.140
+2025-10-08 10:41:27,968 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "a268a828-8080-4b8c-83c3-ffa0014106e8",
+  "media_uri": "sound:chunk_1759920075.140_104127963_1",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:35:56,063 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=8db83a8c-1815-4524-aa8e-3590d4d3ae93
-2025-10-08 05:35:56,063 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 2: 0.00s - 'предназначенный для испытаний ...'
-2025-10-08 05:35:56,067 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
-2025-10-08 05:35:56,068 - __main__ - INFO - 📝 HYBRID: Registered playback start: 8db83a8c... for channel 1759901728.122
-2025-10-08 05:35:56,068 - __main__ - INFO - Playback started for channel 1759901728.122: 8db83a8c-1815-4524-aa8e-3590d4d3ae93
-2025-10-08 05:36:00,155 - __main__ - INFO - Playback finished for channel 1759901728.122: 8db83a8c-1815-4524-aa8e-3590d4d3ae93
-2025-10-08 05:36:00,161 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759901728.122
-2025-10-08 05:36:00,169 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759901728.122_20251008_053600_169030_1e778010, max_duration=8.0s
-2025-10-08 05:36:00,171 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759901728.122_20251008_053600_169030_1e778010 на канале 1759901728.122
-2025-10-08 05:36:00,172 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053600_169030_1e778010
-2025-10-08 05:36:00,172 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:00,172 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:00,172 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759901728.122
-2025-10-08 05:36:00,172 - __main__ - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053600_169030_1e778010
-2025-10-08 05:36:01,679 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759901728.122 (длительность: 1.5s)
-2025-10-08 05:36:02,884 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759901728.122 (тишина: 1.2s, общая запись: 2.7s)
-2025-10-08 05:36:02,884 - __main__ - INFO - 🎯 VAD callback: 1759901728.122, recording=user_1759901728.122_20251008_053600_169030_1e778010, reason=silence_detected
-2025-10-08 05:36:02,886 - __main__ - INFO - ✅ VAD остановил запись user_1759901728.122_20251008_053600_169030_1e778010 для канала 1759901728.122
-2025-10-08 05:36:02,887 - __main__ - INFO - 🎤 Запись завершена: user_1759901728.122_20251008_053600_169030_1e778010
-2025-10-08 05:36:02,887 - __main__ - INFO - ✅ Найден канал 1759901728.122 для записи user_1759901728.122_20251008_053600_169030_1e778010
-2025-10-08 05:36:02,887 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759901728.122
-2025-10-08 05:36:02,887 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759901728.122_20251008_053600_169030_1e778010.wav
-2025-10-08 05:36:02,887 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:02,887 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
-2025-10-08 05:36:02,887 - __main__ - INFO - ✅ Аудио файл проверен: 43244 bytes
-2025-10-08 05:36:02,887 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759901728.122_20251008_053600_169030_1e778010.wav
-2025-10-08 05:36:02,888 - __main__ - INFO - ⏰ Таймер звонка 1759901728.122 отменен
-2025-10-08 05:36:02,888 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759901728.122
-2025-10-08 05:36:02,888 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759901728.122_20251008_053600_169030_1e778010.wav
-2025-10-08 05:36:02,888 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:02,888 - __main__ - INFO - 🎯 Запись для канала 1759901728.122 уже обрабатывается, пропускаем дублирование
-2025-10-08 05:36:02,888 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759901728.122: silence_detected
-2025-10-08 05:36:02,888 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43244 bytes, language=ru-RU
-2025-10-08 05:36:03,189 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Как мне связаться с вашими менеджерами'
-2025-10-08 05:36:03,190 - __main__ - INFO - 🎤 Пользователь сказал: 'Как мне связаться с вашими менеджерами' → 'Как мне связаться с вашими менеджерами'
-2025-10-08 05:36:03,190 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Как мне связаться с вашими менеджерами', 'normalized_text': 'Как мне связаться с вашими менеджерами', 'length': 38, 'word_count': 6, 'has_digits': False, 'has_tech_terms': ['н', 'м', 'т', 'в', 'а'], 'has_question_words': ['как'], 'category': 'informative', 'is_informative': True}
-2025-10-08 05:36:03,190 - __main__ - INFO - ✅ Речь информативна: 'Как мне связаться с вашими менеджерами' - продолжаем обработку
-2025-10-08 05:36:03,190 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
-2025-10-08 05:36:03,190 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759901728.122
-2025-10-08 05:36:03,190 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
-2025-10-08 05:36:03,190 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
-2025-10-08 05:36:03,191 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
-2025-10-08 05:36:03,191 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
-2025-10-08 05:36:03,192 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759901728.122_053603191.wav (10374 bytes)
-2025-10-08 05:36:03,192 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759901728.122_053603191 на канале 1759901728.122
-2025-10-08 05:36:03,196 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "ce9efa5b-9491-4a4b-9dac-627d5f67e7a0",
-  "media_uri": "sound:stream_1759901728.122_053603191",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:27,968 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=a268a828-8080-4b8c-83c3-ffa0014106e8
+2025-10-08 10:41:27,968 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.01s - 'Пожалуйста, уточните, что имен...'
+2025-10-08 10:41:27,968 - __main__ - INFO - 📝 HYBRID: Registered playback start: a268a828... for channel 1759920075.140
+2025-10-08 10:41:27,968 - __main__ - INFO - Playback started for channel 1759920075.140: a268a828-8080-4b8c-83c3-ffa0014106e8
+2025-10-08 10:41:30,527 - __main__ - INFO - Playback finished for channel 1759920075.140: a268a828-8080-4b8c-83c3-ffa0014106e8
+2025-10-08 10:41:30,532 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759920075.140
+2025-10-08 10:41:30,533 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759920075.140: TTS=0.11s
+2025-10-08 10:41:30,533 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759920075.140
+2025-10-08 10:41:30,540 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759920075.140_20251008_104130_540851_0f65f977, max_duration=8.0s
+2025-10-08 10:41:30,543 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759920075.140_20251008_104130_540851_0f65f977 на канале 1759920075.140
+2025-10-08 10:41:30,544 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104130_540851_0f65f977
+2025-10-08 10:41:30,544 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:30,544 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:30,545 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759920075.140
+2025-10-08 10:41:30,545 - __main__ - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104130_540851_0f65f977
+2025-10-08 10:41:32,051 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759920075.140 (длительность: 1.5s)
+2025-10-08 10:41:33,256 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759920075.140 (тишина: 1.2s, общая запись: 2.7s)
+2025-10-08 10:41:33,256 - __main__ - INFO - 🎯 VAD callback: 1759920075.140, recording=user_1759920075.140_20251008_104130_540851_0f65f977, reason=silence_detected
+2025-10-08 10:41:33,259 - __main__ - INFO - ✅ VAD остановил запись user_1759920075.140_20251008_104130_540851_0f65f977 для канала 1759920075.140
+2025-10-08 10:41:33,260 - __main__ - INFO - 🎤 Запись завершена: user_1759920075.140_20251008_104130_540851_0f65f977
+2025-10-08 10:41:33,260 - __main__ - INFO - ✅ Найден канал 1759920075.140 для записи user_1759920075.140_20251008_104130_540851_0f65f977
+2025-10-08 10:41:33,260 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759920075.140
+2025-10-08 10:41:33,260 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759920075.140_20251008_104130_540851_0f65f977.wav
+2025-10-08 10:41:33,260 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:33,261 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
+2025-10-08 10:41:33,261 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
+2025-10-08 10:41:33,261 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759920075.140_20251008_104130_540851_0f65f977.wav
+2025-10-08 10:41:33,261 - __main__ - INFO - ⏰ Таймер звонка 1759920075.140 отменен
+2025-10-08 10:41:33,261 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759920075.140
+2025-10-08 10:41:33,261 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759920075.140_20251008_104130_540851_0f65f977.wav
+2025-10-08 10:41:33,262 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:33,262 - __main__ - INFO - 🎯 Запись для канала 1759920075.140 уже обрабатывается, пропускаем дублирование
+2025-10-08 10:41:33,262 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759920075.140: silence_detected
+2025-10-08 10:41:33,262 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
+2025-10-08 10:41:33,557 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Я хочу узнать скорость ответа'
+2025-10-08 10:41:33,558 - __main__ - INFO - 🎤 Пользователь сказал: 'Я хочу узнать скорость ответа' → 'Я хочу узнать скорость ответа'
+2025-10-08 10:41:33,558 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Я хочу узнать скорость ответа', 'normalized_text': 'Я хочу узнать скорость ответа', 'length': 29, 'word_count': 5, 'has_digits': False, 'has_tech_terms': ['н', 'т', 'в', 'а'], 'has_question_words': [], 'category': 'informative', 'is_informative': True}
+2025-10-08 10:41:33,558 - __main__ - INFO - ✅ Речь информативна: 'Я хочу узнать скорость ответа' - продолжаем обработку
+2025-10-08 10:41:33,558 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
+2025-10-08 10:41:33,558 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759920075.140
+2025-10-08 10:41:33,558 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
+2025-10-08 10:41:33,558 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
+2025-10-08 10:41:33,558 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хорошо,' (0.000s)
+2025-10-08 10:41:33,558 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
+2025-10-08 10:41:33,559 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759920075.140_104133558.wav (15018 bytes)
+2025-10-08 10:41:33,559 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759920075.140_104133558 на канале 1759920075.140
+2025-10-08 10:41:33,563 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "f89f9d59-3996-4b1c-8c67-df2a4a3ab580",
+  "media_uri": "sound:stream_1759920075.140_104133558",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:03,196 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=ce9efa5b-9491-4a4b-9dac-627d5f67e7a0
-2025-10-08 05:36:03,196 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: ce9efa5b-9491-4a4b-9dac-627d5f67e7a0
-2025-10-08 05:36:03,197 - __main__ - INFO - ⚡ Filler played: 0.01s
-2025-10-08 05:36:03,391 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
-2025-10-08 05:36:03,392 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759901728.122
-2025-10-08 05:36:03,392 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Как мне связаться с вашими менеджерами...'
-2025-10-08 05:36:03,392 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
-2025-10-08 05:36:03,392 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
-2025-10-08 05:36:03,392 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
-2025-10-08 05:36:03,392 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
-2025-10-08 05:36:03,392 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
-2025-10-08 05:36:03,392 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
-2025-10-08 05:36:03,405 - app.backend.rag.agent - INFO - ⚡ ОПТИМИЗАЦИЯ: Embedding запроса из кеша (экономия ~0.8с)
-2025-10-08 05:36:03,407 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.015с
-2025-10-08 05:36:04,719 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2025-10-08 05:36:04,723 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 1.331с
-2025-10-08 05:36:05,065 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Вы можете позвонить по телефон...'
-2025-10-08 05:36:05,066 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'Вы можете позвонить по телефон...'
-2025-10-08 05:36:05,069 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 1.677с, чанков: 31
-2025-10-08 05:36:05,069 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 1.678с, токенов: 29, предложений: 1
-2025-10-08 05:36:05,069 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 2.18s
-2025-10-08 05:36:05,069 - __main__ - INFO - 📊 Performance metrics for 1759901728.122: {'total_time': 2.182223320007324, 'asr_complete_time': 1759901763.1901333, 'first_chunk_time': None, 'first_audio_time': 0.005961179733276367, 'filler_time': 0.006424903869628906}
-2025-10-08 05:36:05,070 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
-2025-10-08 05:36:05,077 - __main__ - INFO - 💾 Лог сохранён для Session 1e094ef3-a035-4511-ab96-a5453dd12a36
-2025-10-08 05:36:05,078 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759901728.122
-2025-10-08 05:36:05,078 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759901728.122 (30 сек)
-2025-10-08 05:36:05,078 - __main__ - INFO - 📝 HYBRID: Registered playback start: ce9efa5b... for channel 1759901728.122
-2025-10-08 05:36:05,078 - __main__ - INFO - Playback started for channel 1759901728.122: ce9efa5b-9491-4a4b-9dac-627d5f67e7a0
-2025-10-08 05:36:05,090 - __main__ - INFO - Playback finished for channel 1759901728.122: ce9efa5b-9491-4a4b-9dac-627d5f67e7a0
-2025-10-08 05:36:05,100 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
-2025-10-08 05:36:05,302 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.24s for 'Вы можете позвонить по телефон...', size=152666 bytes
-2025-10-08 05:36:05,303 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.24s, size=152666 bytes
-2025-10-08 05:36:05,303 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759901728.122_053605303_1.wav (152666 bytes)
-2025-10-08 05:36:05,303 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759901728.122_053605303_1 (канал 1759901728.122)
-2025-10-08 05:36:05,304 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759901728.122_053605303_1 на канале 1759901728.122
-2025-10-08 05:36:05,305 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "f8cd2321-a334-427d-873c-e346a4fb4589",
-  "media_uri": "sound:chunk_1759901728.122_053605303_1",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:33,563 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=f89f9d59-3996-4b1c-8c67-df2a4a3ab580
+2025-10-08 10:41:33,563 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: f89f9d59-3996-4b1c-8c67-df2a4a3ab580
+2025-10-08 10:41:33,564 - __main__ - INFO - ⏳ Ждём проигрывание филлера (f89f9d59-3996-4b1c-8c67-df2a4a3ab580)... 0.8 сек
+2025-10-08 10:41:34,365 - __main__ - INFO - ⚡ Filler played: 0.81s
+2025-10-08 10:41:34,365 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
+2025-10-08 10:41:34,365 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759920075.140
+2025-10-08 10:41:34,365 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Я хочу узнать скорость ответа...'
+2025-10-08 10:41:34,365 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
+2025-10-08 10:41:34,365 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
+2025-10-08 10:41:34,365 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
+2025-10-08 10:41:34,365 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
+2025-10-08 10:41:34,365 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
+2025-10-08 10:41:34,366 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
+2025-10-08 10:41:34,383 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
+2025-10-08 10:41:34,385 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.019с
+2025-10-08 10:41:34,386 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
+2025-10-08 10:41:34,746 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-10-08 10:41:34,760 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 0.373с)
+2025-10-08 10:41:35,520 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-08 10:41:35,531 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 1.165с
+2025-10-08 10:41:35,668 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Скорость ответа составляет нес...'
+2025-10-08 10:41:35,668 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'Скорость ответа составляет нес...'
+2025-10-08 10:41:35,672 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 1.306с, чанков: 11
+2025-10-08 10:41:35,672 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 1.307с, токенов: 9, предложений: 1
+2025-10-08 10:41:35,672 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 2.41s
+2025-10-08 10:41:35,672 - __main__ - INFO - 📊 Performance metrics for 1759920075.140: {'total_time': 2.4113762378692627, 'asr_complete_time': 1759920093.5581121, 'first_chunk_time': None, 'first_audio_time': 0.006125688552856445, 'filler_time': 0.8066678047180176}
+2025-10-08 10:41:35,672 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
+2025-10-08 10:41:35,680 - __main__ - INFO - 💾 Лог сохранён для Session d687257d-03a2-41e2-88df-67f4bed2965f
+2025-10-08 10:41:35,680 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759920075.140
+2025-10-08 10:41:35,680 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759920075.140 (30 сек)
+2025-10-08 10:41:35,680 - __main__ - INFO - 📝 HYBRID: Registered playback start: f89f9d59... for channel 1759920075.140
+2025-10-08 10:41:35,680 - __main__ - INFO - Playback started for channel 1759920075.140: f89f9d59-3996-4b1c-8c67-df2a4a3ab580
+2025-10-08 10:41:35,697 - __main__ - INFO - Playback finished for channel 1759920075.140: f89f9d59-3996-4b1c-8c67-df2a4a3ab580
+2025-10-08 10:41:35,710 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
+2025-10-08 10:41:35,790 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.12s for 'Скорость ответа составляет нес...', size=49012 bytes
+2025-10-08 10:41:35,790 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.12s, size=49012 bytes
+2025-10-08 10:41:35,790 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759920075.140_104135790_1.wav (49012 bytes)
+2025-10-08 10:41:35,790 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759920075.140_104135790_1 (канал 1759920075.140)
+2025-10-08 10:41:35,790 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759920075.140_104135790_1 на канале 1759920075.140
+2025-10-08 10:41:35,792 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "d1d3547a-4d41-4ae6-8d06-96d91058c2ff",
+  "media_uri": "sound:chunk_1759920075.140_104135790_1",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:05,305 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=f8cd2321-a334-427d-873c-e346a4fb4589
-2025-10-08 05:36:05,305 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'Вы можете позвонить по телефон...'
-2025-10-08 05:36:05,305 - __main__ - INFO - 📝 HYBRID: Registered playback start: f8cd2321... for channel 1759901728.122
-2025-10-08 05:36:05,305 - __main__ - INFO - Playback started for channel 1759901728.122: f8cd2321-a334-427d-873c-e346a4fb4589
-2025-10-08 05:36:14,843 - __main__ - INFO - Playback finished for channel 1759901728.122: f8cd2321-a334-427d-873c-e346a4fb4589
-2025-10-08 05:36:14,847 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759901728.122
-2025-10-08 05:36:14,847 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759901728.122: TTS=0.24s
-2025-10-08 05:36:14,847 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759901728.122
-2025-10-08 05:36:14,858 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759901728.122_20251008_053614_858689_b9eff66f, max_duration=8.0s
-2025-10-08 05:36:14,860 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759901728.122_20251008_053614_858689_b9eff66f на канале 1759901728.122
-2025-10-08 05:36:14,861 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053614_858689_b9eff66f
-2025-10-08 05:36:14,861 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:14,861 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:14,861 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759901728.122
-2025-10-08 05:36:14,861 - __main__ - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053614_858689_b9eff66f
-2025-10-08 05:36:16,368 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759901728.122 (длительность: 1.5s)
-2025-10-08 05:36:17,572 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759901728.122 (тишина: 1.2s, общая запись: 2.7s)
-2025-10-08 05:36:17,572 - __main__ - INFO - 🎯 VAD callback: 1759901728.122, recording=user_1759901728.122_20251008_053614_858689_b9eff66f, reason=silence_detected
-2025-10-08 05:36:17,575 - __main__ - INFO - ✅ VAD остановил запись user_1759901728.122_20251008_053614_858689_b9eff66f для канала 1759901728.122
-2025-10-08 05:36:17,575 - __main__ - INFO - 🎤 Запись завершена: user_1759901728.122_20251008_053614_858689_b9eff66f
-2025-10-08 05:36:17,575 - __main__ - INFO - ✅ Найден канал 1759901728.122 для записи user_1759901728.122_20251008_053614_858689_b9eff66f
-2025-10-08 05:36:17,575 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759901728.122
-2025-10-08 05:36:17,575 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759901728.122_20251008_053614_858689_b9eff66f.wav
-2025-10-08 05:36:17,576 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:17,576 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
-2025-10-08 05:36:17,576 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
-2025-10-08 05:36:17,576 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759901728.122_20251008_053614_858689_b9eff66f.wav
-2025-10-08 05:36:17,576 - __main__ - INFO - ⏰ Таймер звонка 1759901728.122 отменен
-2025-10-08 05:36:17,576 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759901728.122
-2025-10-08 05:36:17,576 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759901728.122_20251008_053614_858689_b9eff66f.wav
-2025-10-08 05:36:17,576 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:17,576 - __main__ - INFO - 🎯 Запись для канала 1759901728.122 уже обрабатывается, пропускаем дублирование
-2025-10-08 05:36:17,576 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759901728.122: silence_detected
-2025-10-08 05:36:17,577 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
-2025-10-08 05:36:18,027 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Хорошо а стеласкоп'
-2025-10-08 05:36:18,027 - __main__ - INFO - 🎤 Пользователь сказал: 'Хорошо а стеласкоп' → 'Хорошо а стеласкоп'
-2025-10-08 05:36:18,028 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Хорошо а стеласкоп', 'normalized_text': 'Хорошо а стеласкоп', 'length': 18, 'word_count': 3, 'has_digits': False, 'has_tech_terms': ['т', 'а'], 'has_question_words': [], 'category': 'informative', 'is_informative': True}
-2025-10-08 05:36:18,028 - __main__ - INFO - ✅ Речь информативна: 'Хорошо а стеласкоп' - продолжаем обработку
-2025-10-08 05:36:18,028 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
-2025-10-08 05:36:18,028 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759901728.122
-2025-10-08 05:36:18,028 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
-2025-10-08 05:36:18,028 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
-2025-10-08 05:36:18,028 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
-2025-10-08 05:36:18,028 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
-2025-10-08 05:36:18,028 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759901728.122_053618028.wav (10374 bytes)
-2025-10-08 05:36:18,028 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759901728.122_053618028 на канале 1759901728.122
-2025-10-08 05:36:18,030 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "8bb6f2b3-3bc8-49cf-9e6d-157a0c3676fd",
-  "media_uri": "sound:stream_1759901728.122_053618028",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:35,792 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=d1d3547a-4d41-4ae6-8d06-96d91058c2ff
+2025-10-08 10:41:35,792 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'Скорость ответа составляет нес...'
+2025-10-08 10:41:35,792 - __main__ - INFO - 📝 HYBRID: Registered playback start: d1d3547a... for channel 1759920075.140
+2025-10-08 10:41:35,792 - __main__ - INFO - Playback started for channel 1759920075.140: d1d3547a-4d41-4ae6-8d06-96d91058c2ff
+2025-10-08 10:41:38,852 - __main__ - INFO - Playback finished for channel 1759920075.140: d1d3547a-4d41-4ae6-8d06-96d91058c2ff
+2025-10-08 10:41:38,856 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759920075.140
+2025-10-08 10:41:38,856 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759920075.140: TTS=0.12s
+2025-10-08 10:41:38,857 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759920075.140
+2025-10-08 10:41:38,868 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759920075.140_20251008_104138_868494_76b659c4, max_duration=8.0s
+2025-10-08 10:41:38,871 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759920075.140_20251008_104138_868494_76b659c4 на канале 1759920075.140
+2025-10-08 10:41:38,873 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104138_868494_76b659c4
+2025-10-08 10:41:38,873 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:38,873 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:38,873 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759920075.140
+2025-10-08 10:41:38,873 - __main__ - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104138_868494_76b659c4
+2025-10-08 10:41:40,380 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759920075.140 (длительность: 1.5s)
+2025-10-08 10:41:41,587 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759920075.140 (тишина: 1.2s, общая запись: 2.7s)
+2025-10-08 10:41:41,587 - __main__ - INFO - 🎯 VAD callback: 1759920075.140, recording=user_1759920075.140_20251008_104138_868494_76b659c4, reason=silence_detected
+2025-10-08 10:41:41,591 - __main__ - INFO - ✅ VAD остановил запись user_1759920075.140_20251008_104138_868494_76b659c4 для канала 1759920075.140
+2025-10-08 10:41:41,591 - __main__ - INFO - 🎤 Запись завершена: user_1759920075.140_20251008_104138_868494_76b659c4
+2025-10-08 10:41:41,591 - __main__ - INFO - ✅ Найден канал 1759920075.140 для записи user_1759920075.140_20251008_104138_868494_76b659c4
+2025-10-08 10:41:41,591 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759920075.140
+2025-10-08 10:41:41,591 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759920075.140_20251008_104138_868494_76b659c4.wav
+2025-10-08 10:41:41,592 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:41,592 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
+2025-10-08 10:41:41,592 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
+2025-10-08 10:41:41,592 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759920075.140_20251008_104138_868494_76b659c4.wav
+2025-10-08 10:41:41,592 - __main__ - INFO - ⏰ Таймер звонка 1759920075.140 отменен
+2025-10-08 10:41:41,592 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759920075.140
+2025-10-08 10:41:41,592 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759920075.140_20251008_104138_868494_76b659c4.wav
+2025-10-08 10:41:41,592 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:41,592 - __main__ - INFO - 🎯 Запись для канала 1759920075.140 уже обрабатывается, пропускаем дублирование
+2025-10-08 10:41:41,592 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759920075.140: silence_detected
+2025-10-08 10:41:41,593 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
+2025-10-08 10:41:41,895 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Могу ли я вас прерывать'
+2025-10-08 10:41:41,895 - __main__ - INFO - 🎤 Пользователь сказал: 'Могу ли я вас прерывать' → 'Могу ли я вас прерывать'
+2025-10-08 10:41:41,896 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Могу ли я вас прерывать', 'normalized_text': 'Могу ли я вас прерывать', 'length': 23, 'word_count': 5, 'has_digits': False, 'has_tech_terms': ['м', 'т', 'в', 'а'], 'has_question_words': [], 'category': 'informative', 'is_informative': True}
+2025-10-08 10:41:41,896 - __main__ - INFO - ✅ Речь информативна: 'Могу ли я вас прерывать' - продолжаем обработку
+2025-10-08 10:41:41,896 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
+2025-10-08 10:41:41,896 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759920075.140
+2025-10-08 10:41:41,896 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
+2025-10-08 10:41:41,896 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
+2025-10-08 10:41:41,896 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
+2025-10-08 10:41:41,896 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
+2025-10-08 10:41:41,897 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759920075.140_104141896.wav (10374 bytes)
+2025-10-08 10:41:41,897 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759920075.140_104141896 на канале 1759920075.140
+2025-10-08 10:41:41,899 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "203cb618-40ec-4107-a18f-bd99341ec18b",
+  "media_uri": "sound:stream_1759920075.140_104141896",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:18,030 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=8bb6f2b3-3bc8-49cf-9e6d-157a0c3676fd
-2025-10-08 05:36:18,031 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: 8bb6f2b3-3bc8-49cf-9e6d-157a0c3676fd
-2025-10-08 05:36:18,031 - __main__ - INFO - ⚡ Filler played: 0.00s
-2025-10-08 05:36:18,229 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
-2025-10-08 05:36:18,229 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759901728.122
-2025-10-08 05:36:18,229 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Хорошо а стеласкоп...'
-2025-10-08 05:36:18,229 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
-2025-10-08 05:36:18,229 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
-2025-10-08 05:36:18,229 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
-2025-10-08 05:36:18,229 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
-2025-10-08 05:36:18,229 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
-2025-10-08 05:36:18,229 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
-2025-10-08 05:36:18,242 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
-2025-10-08 05:36:18,242 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.013с
-2025-10-08 05:36:18,243 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
-2025-10-08 05:36:18,625 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
-2025-10-08 05:36:18,631 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 0.388с)
-2025-10-08 05:36:20,388 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2025-10-08 05:36:20,405 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 2.176с
-2025-10-08 05:36:20,841 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'У нас есть стационарные и пере...'
-2025-10-08 05:36:20,841 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'У нас есть стационарные и пере...'
-2025-10-08 05:36:20,856 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 2.627с, чанков: 27
-2025-10-08 05:36:20,858 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 2.629с, токенов: 25, предложений: 1
-2025-10-08 05:36:20,858 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 3.28s
-2025-10-08 05:36:20,858 - __main__ - INFO - 📊 Performance metrics for 1759901728.122: {'total_time': 3.2826294898986816, 'asr_complete_time': 1759901778.0277798, 'first_chunk_time': None, 'first_audio_time': 0.005961179733276367, 'filler_time': 0.0030689239501953125}
-2025-10-08 05:36:20,859 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
-2025-10-08 05:36:20,881 - __main__ - INFO - 💾 Лог сохранён для Session 1e094ef3-a035-4511-ab96-a5453dd12a36
-2025-10-08 05:36:20,881 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759901728.122
-2025-10-08 05:36:20,881 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759901728.122 (30 сек)
-2025-10-08 05:36:20,881 - __main__ - INFO - 📝 HYBRID: Registered playback start: 8bb6f2b3... for channel 1759901728.122
-2025-10-08 05:36:20,882 - __main__ - INFO - Playback started for channel 1759901728.122: 8bb6f2b3-3bc8-49cf-9e6d-157a0c3676fd
-2025-10-08 05:36:20,900 - __main__ - INFO - Playback finished for channel 1759901728.122: 8bb6f2b3-3bc8-49cf-9e6d-157a0c3676fd
-2025-10-08 05:36:20,912 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
-2025-10-08 05:36:21,012 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.17s for 'У нас есть стационарные и пере...', size=93594 bytes
-2025-10-08 05:36:21,012 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.17s, size=93594 bytes
-2025-10-08 05:36:21,013 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759901728.122_053621012_1.wav (93594 bytes)
-2025-10-08 05:36:21,013 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759901728.122_053621012_1 (канал 1759901728.122)
-2025-10-08 05:36:21,013 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759901728.122_053621012_1 на канале 1759901728.122
-2025-10-08 05:36:21,015 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "fdec90a4-05ab-429a-a756-a232df8561ea",
-  "media_uri": "sound:chunk_1759901728.122_053621012_1",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:41,899 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=203cb618-40ec-4107-a18f-bd99341ec18b
+2025-10-08 10:41:41,899 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: 203cb618-40ec-4107-a18f-bd99341ec18b
+2025-10-08 10:41:41,900 - __main__ - INFO - ⏳ Ждём проигрывание филлера (203cb618-40ec-4107-a18f-bd99341ec18b)... 0.8 сек
+2025-10-08 10:41:42,701 - __main__ - INFO - ⚡ Filler played: 0.81s
+2025-10-08 10:41:42,702 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
+2025-10-08 10:41:42,702 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759920075.140
+2025-10-08 10:41:42,702 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Могу ли я вас прерывать...'
+2025-10-08 10:41:42,702 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
+2025-10-08 10:41:42,702 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
+2025-10-08 10:41:42,702 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
+2025-10-08 10:41:42,702 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
+2025-10-08 10:41:42,702 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
+2025-10-08 10:41:42,702 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
+2025-10-08 10:41:42,723 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.021с
+2025-10-08 10:41:42,723 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
+2025-10-08 10:41:42,730 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
+2025-10-08 10:41:43,109 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-10-08 10:41:43,124 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 0.396с)
+2025-10-08 10:41:43,756 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-08 10:41:43,771 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 1.069с
+2025-10-08 10:41:44,034 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Да, вы можете меня прерывать в...'
+2025-10-08 10:41:44,034 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'Да, вы можете меня прерывать в...'
+2025-10-08 10:41:44,041 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 1.339с, чанков: 15
+2025-10-08 10:41:44,041 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 1.339с, токенов: 13, предложений: 1
+2025-10-08 10:41:44,041 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 2.45s
+2025-10-08 10:41:44,041 - __main__ - INFO - 📊 Performance metrics for 1759920075.140: {'total_time': 2.4495773315429688, 'asr_complete_time': 1759920101.8959367, 'first_chunk_time': None, 'first_audio_time': 0.006125688552856445, 'filler_time': 0.8052220344543457}
+2025-10-08 10:41:44,041 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
+2025-10-08 10:41:44,047 - __main__ - INFO - 💾 Лог сохранён для Session d687257d-03a2-41e2-88df-67f4bed2965f
+2025-10-08 10:41:44,047 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759920075.140
+2025-10-08 10:41:44,047 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759920075.140 (30 сек)
+2025-10-08 10:41:44,047 - __main__ - INFO - 📝 HYBRID: Registered playback start: 203cb618... for channel 1759920075.140
+2025-10-08 10:41:44,047 - __main__ - INFO - Playback started for channel 1759920075.140: 203cb618-40ec-4107-a18f-bd99341ec18b
+2025-10-08 10:41:44,064 - __main__ - INFO - Playback finished for channel 1759920075.140: 203cb618-40ec-4107-a18f-bd99341ec18b
+2025-10-08 10:41:44,079 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
+2025-10-08 10:41:44,165 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.13s for 'Да, вы можете меня прерывать в...', size=49198 bytes
+2025-10-08 10:41:44,165 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.13s, size=49198 bytes
+2025-10-08 10:41:44,166 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759920075.140_104144165_1.wav (49198 bytes)
+2025-10-08 10:41:44,166 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759920075.140_104144165_1 (канал 1759920075.140)
+2025-10-08 10:41:44,166 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759920075.140_104144165_1 на канале 1759920075.140
+2025-10-08 10:41:44,168 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "b8fcca57-0ef5-4b25-8b08-5d7435a88ac9",
+  "media_uri": "sound:chunk_1759920075.140_104144165_1",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:21,015 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=fdec90a4-05ab-429a-a756-a232df8561ea
-2025-10-08 05:36:21,016 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'У нас есть стационарные и пере...'
-2025-10-08 05:36:21,016 - __main__ - INFO - 📝 HYBRID: Registered playback start: fdec90a4... for channel 1759901728.122
-2025-10-08 05:36:21,016 - __main__ - INFO - Playback started for channel 1759901728.122: fdec90a4-05ab-429a-a756-a232df8561ea
-2025-10-08 05:36:26,860 - __main__ - INFO - Playback finished for channel 1759901728.122: fdec90a4-05ab-429a-a756-a232df8561ea
-2025-10-08 05:36:26,866 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759901728.122
-2025-10-08 05:36:26,866 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759901728.122: TTS=0.17s
-2025-10-08 05:36:26,867 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759901728.122
-2025-10-08 05:36:26,872 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759901728.122_20251008_053626_872015_d3d0531c, max_duration=8.0s
-2025-10-08 05:36:26,874 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759901728.122_20251008_053626_872015_d3d0531c на канале 1759901728.122
-2025-10-08 05:36:26,876 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053626_872015_d3d0531c
-2025-10-08 05:36:26,876 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:26,876 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:26,876 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759901728.122
-2025-10-08 05:36:26,876 - __main__ - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053626_872015_d3d0531c
-2025-10-08 05:36:28,384 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759901728.122 (длительность: 1.5s)
-2025-10-08 05:36:29,589 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759901728.122 (тишина: 1.2s, общая запись: 2.7s)
-2025-10-08 05:36:29,589 - __main__ - INFO - 🎯 VAD callback: 1759901728.122, recording=user_1759901728.122_20251008_053626_872015_d3d0531c, reason=silence_detected
-2025-10-08 05:36:29,591 - __main__ - INFO - ✅ VAD остановил запись user_1759901728.122_20251008_053626_872015_d3d0531c для канала 1759901728.122
-2025-10-08 05:36:29,592 - __main__ - INFO - 🎤 Запись завершена: user_1759901728.122_20251008_053626_872015_d3d0531c
-2025-10-08 05:36:29,592 - __main__ - INFO - ✅ Найден канал 1759901728.122 для записи user_1759901728.122_20251008_053626_872015_d3d0531c
-2025-10-08 05:36:29,592 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759901728.122
-2025-10-08 05:36:29,592 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759901728.122_20251008_053626_872015_d3d0531c.wav
-2025-10-08 05:36:29,592 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:29,592 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
-2025-10-08 05:36:29,592 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
-2025-10-08 05:36:29,592 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759901728.122_20251008_053626_872015_d3d0531c.wav
-2025-10-08 05:36:29,592 - __main__ - INFO - ⏰ Таймер звонка 1759901728.122 отменен
-2025-10-08 05:36:29,593 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759901728.122
-2025-10-08 05:36:29,593 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759901728.122_20251008_053626_872015_d3d0531c.wav
-2025-10-08 05:36:29,593 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:29,593 - __main__ - INFO - 🎯 Запись для канала 1759901728.122 уже обрабатывается, пропускаем дублирование
-2025-10-08 05:36:29,593 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759901728.122: silence_detected
-2025-10-08 05:36:29,593 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
-2025-10-08 05:36:29,883 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'А сколько стоят они'
-2025-10-08 05:36:29,883 - __main__ - INFO - 🎤 Пользователь сказал: 'А сколько стоят они' → 'А сколько стоят они'
-2025-10-08 05:36:29,884 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'А сколько стоят они', 'normalized_text': 'А сколько стоят они', 'length': 19, 'word_count': 4, 'has_digits': False, 'has_tech_terms': ['н', 'т', 'а'], 'has_question_words': ['сколько'], 'category': 'informative', 'is_informative': True}
-2025-10-08 05:36:29,884 - __main__ - INFO - ✅ Речь информативна: 'А сколько стоят они' - продолжаем обработку
-2025-10-08 05:36:29,884 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
-2025-10-08 05:36:29,884 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759901728.122
-2025-10-08 05:36:29,884 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
-2025-10-08 05:36:29,884 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
-2025-10-08 05:36:29,884 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
-2025-10-08 05:36:29,884 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
-2025-10-08 05:36:29,885 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759901728.122_053629884.wav (10374 bytes)
-2025-10-08 05:36:29,885 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759901728.122_053629884 на канале 1759901728.122
-2025-10-08 05:36:29,887 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "f85dd402-dcfe-42b7-81e3-9b1812b90b35",
-  "media_uri": "sound:stream_1759901728.122_053629884",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:44,168 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=b8fcca57-0ef5-4b25-8b08-5d7435a88ac9
+2025-10-08 10:41:44,168 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'Да, вы можете меня прерывать в...'
+2025-10-08 10:41:44,168 - __main__ - INFO - 📝 HYBRID: Registered playback start: b8fcca57... for channel 1759920075.140
+2025-10-08 10:41:44,168 - __main__ - INFO - Playback started for channel 1759920075.140: b8fcca57-0ef5-4b25-8b08-5d7435a88ac9
+2025-10-08 10:41:47,239 - __main__ - INFO - Playback finished for channel 1759920075.140: b8fcca57-0ef5-4b25-8b08-5d7435a88ac9
+2025-10-08 10:41:47,243 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759920075.140
+2025-10-08 10:41:47,244 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759920075.140: TTS=0.13s
+2025-10-08 10:41:47,244 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759920075.140
+2025-10-08 10:41:47,253 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759920075.140_20251008_104147_252865_185221b9, max_duration=8.0s
+2025-10-08 10:41:47,256 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759920075.140_20251008_104147_252865_185221b9 на канале 1759920075.140
+2025-10-08 10:41:47,257 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104147_252865_185221b9
+2025-10-08 10:41:47,258 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:47,258 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:47,258 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759920075.140
+2025-10-08 10:41:47,258 - __main__ - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104147_252865_185221b9
+2025-10-08 10:41:48,766 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759920075.140 (длительность: 1.5s)
+2025-10-08 10:41:49,971 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759920075.140 (тишина: 1.2s, общая запись: 2.7s)
+2025-10-08 10:41:49,971 - __main__ - INFO - 🎯 VAD callback: 1759920075.140, recording=user_1759920075.140_20251008_104147_252865_185221b9, reason=silence_detected
+2025-10-08 10:41:49,974 - __main__ - INFO - ✅ VAD остановил запись user_1759920075.140_20251008_104147_252865_185221b9 для канала 1759920075.140
+2025-10-08 10:41:49,974 - __main__ - INFO - 🎤 Запись завершена: user_1759920075.140_20251008_104147_252865_185221b9
+2025-10-08 10:41:49,975 - __main__ - INFO - ✅ Найден канал 1759920075.140 для записи user_1759920075.140_20251008_104147_252865_185221b9
+2025-10-08 10:41:49,975 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759920075.140
+2025-10-08 10:41:49,975 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759920075.140_20251008_104147_252865_185221b9.wav
+2025-10-08 10:41:49,975 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:49,975 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
+2025-10-08 10:41:49,975 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
+2025-10-08 10:41:49,975 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759920075.140_20251008_104147_252865_185221b9.wav
+2025-10-08 10:41:49,975 - __main__ - INFO - ⏰ Таймер звонка 1759920075.140 отменен
+2025-10-08 10:41:49,975 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759920075.140
+2025-10-08 10:41:49,976 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759920075.140_20251008_104147_252865_185221b9.wav
+2025-10-08 10:41:49,976 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:49,976 - __main__ - INFO - 🎯 Запись для канала 1759920075.140 уже обрабатывается, пропускаем дублирование
+2025-10-08 10:41:49,976 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759920075.140: silence_detected
+2025-10-08 10:41:49,976 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
+2025-10-08 10:41:50,277 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Хоть сейчас прям'
+2025-10-08 10:41:50,278 - __main__ - INFO - 🎤 Пользователь сказал: 'Хоть сейчас прям' → 'Хоть сейчас прям'
+2025-10-08 10:41:50,278 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Хоть сейчас прям', 'normalized_text': 'Хоть сейчас прям', 'length': 16, 'word_count': 3, 'has_digits': False, 'has_tech_terms': ['м', 'т', 'а'], 'has_question_words': [], 'category': 'informative', 'is_informative': True}
+2025-10-08 10:41:50,278 - __main__ - INFO - ✅ Речь информативна: 'Хоть сейчас прям' - продолжаем обработку
+2025-10-08 10:41:50,278 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
+2025-10-08 10:41:50,278 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759920075.140
+2025-10-08 10:41:50,278 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
+2025-10-08 10:41:50,279 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
+2025-10-08 10:41:50,279 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
+2025-10-08 10:41:50,279 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
+2025-10-08 10:41:50,279 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759920075.140_104150279.wav (10374 bytes)
+2025-10-08 10:41:50,279 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759920075.140_104150279 на канале 1759920075.140
+2025-10-08 10:41:50,282 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "caf5c321-5bea-4ed1-98da-e51216e4664b",
+  "media_uri": "sound:stream_1759920075.140_104150279",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:29,887 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=f85dd402-dcfe-42b7-81e3-9b1812b90b35
-2025-10-08 05:36:29,887 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: f85dd402-dcfe-42b7-81e3-9b1812b90b35
-2025-10-08 05:36:29,888 - __main__ - INFO - ⚡ Filler played: 0.00s
-2025-10-08 05:36:30,085 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
-2025-10-08 05:36:30,086 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759901728.122
-2025-10-08 05:36:30,086 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'А сколько стоят они...'
-2025-10-08 05:36:30,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
-2025-10-08 05:36:30,086 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
-2025-10-08 05:36:30,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
-2025-10-08 05:36:30,086 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
-2025-10-08 05:36:30,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
-2025-10-08 05:36:30,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
-2025-10-08 05:36:30,096 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.010с
-2025-10-08 05:36:30,097 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
-2025-10-08 05:36:30,098 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
-2025-10-08 05:36:31,228 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
-2025-10-08 05:36:31,233 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 1.135с)
-2025-10-08 05:36:32,012 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2025-10-08 05:36:32,014 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 1.928с
-2025-10-08 05:36:32,751 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Цены на стилоскопы зависят от ...'
-2025-10-08 05:36:32,752 - __main__ - INFO - 🔊 FORCED CHUNK 1 (52 chars): 'Цены на стилоскопы зависят от ...'
-2025-10-08 05:36:33,017 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.20s for 'Цены на стилоскопы зависят от ...', size=59600 bytes
-2025-10-08 05:36:33,017 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.20s, size=59600 bytes
-2025-10-08 05:36:33,018 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759901728.122_053633017_1.wav (59600 bytes)
-2025-10-08 05:36:33,018 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759901728.122_053633017_1 (канал 1759901728.122)
-2025-10-08 05:36:33,018 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759901728.122_053633017_1 на канале 1759901728.122
-2025-10-08 05:36:33,022 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 2 immediately: 'Для точной информации свяжитес...'
-2025-10-08 05:36:33,022 - __main__ - INFO - 🔊 DELIMITER CHUNK 2: 'Для точной информации свяжитес...'
-2025-10-08 05:36:33,028 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 2.942с, чанков: 35
-2025-10-08 05:36:33,028 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 2.943с, токенов: 33, предложений: 2
-2025-10-08 05:36:33,028 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 3.44s
-2025-10-08 05:36:33,028 - __main__ - INFO - 📊 Performance metrics for 1759901728.122: {'total_time': 3.4362094402313232, 'asr_complete_time': 1759901789.8839278, 'first_chunk_time': None, 'first_audio_time': 0.005961179733276367, 'filler_time': 0.0036592483520507812}
-2025-10-08 05:36:33,028 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
-2025-10-08 05:36:33,029 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "5db427ff-19f2-442c-89e0-7cdc24bca40d",
-  "media_uri": "sound:chunk_1759901728.122_053633017_1",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:50,282 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=caf5c321-5bea-4ed1-98da-e51216e4664b
+2025-10-08 10:41:50,282 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: caf5c321-5bea-4ed1-98da-e51216e4664b
+2025-10-08 10:41:50,284 - __main__ - INFO - ⏳ Ждём проигрывание филлера (caf5c321-5bea-4ed1-98da-e51216e4664b)... 0.8 сек
+2025-10-08 10:41:51,085 - __main__ - INFO - ⚡ Filler played: 0.81s
+2025-10-08 10:41:51,086 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
+2025-10-08 10:41:51,086 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759920075.140
+2025-10-08 10:41:51,086 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Хоть сейчас прям...'
+2025-10-08 10:41:51,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
+2025-10-08 10:41:51,086 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
+2025-10-08 10:41:51,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
+2025-10-08 10:41:51,086 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
+2025-10-08 10:41:51,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
+2025-10-08 10:41:51,086 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
+2025-10-08 10:41:51,102 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
+2025-10-08 10:41:51,103 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.017с
+2025-10-08 10:41:51,106 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
+2025-10-08 10:41:52,966 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+2025-10-08 10:41:52,977 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 1.872с)
+2025-10-08 10:41:53,552 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-08 10:41:53,561 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 2.475с
+2025-10-08 10:41:53,701 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Да, конечно, задавайте вопрос!...'
+2025-10-08 10:41:53,702 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'Да, конечно, задавайте вопрос!...'
+2025-10-08 10:41:53,714 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 2.628с, чанков: 11
+2025-10-08 10:41:53,714 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 2.628с, токенов: 9, предложений: 1
+2025-10-08 10:41:53,714 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 3.74s
+2025-10-08 10:41:53,714 - __main__ - INFO - 📊 Performance metrics for 1759920075.140: {'total_time': 3.7391128540039062, 'asr_complete_time': 1759920110.2784705, 'first_chunk_time': None, 'first_audio_time': 0.006125688552856445, 'filler_time': 0.8066072463989258}
+2025-10-08 10:41:53,714 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
+2025-10-08 10:41:53,723 - __main__ - INFO - 💾 Лог сохранён для Session d687257d-03a2-41e2-88df-67f4bed2965f
+2025-10-08 10:41:53,723 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759920075.140
+2025-10-08 10:41:53,724 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759920075.140 (30 сек)
+2025-10-08 10:41:53,724 - __main__ - INFO - 📝 HYBRID: Registered playback start: caf5c321... for channel 1759920075.140
+2025-10-08 10:41:53,724 - __main__ - INFO - Playback started for channel 1759920075.140: caf5c321-5bea-4ed1-98da-e51216e4664b
+2025-10-08 10:41:53,742 - __main__ - INFO - Playback finished for channel 1759920075.140: caf5c321-5bea-4ed1-98da-e51216e4664b
+2025-10-08 10:41:53,756 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
+2025-10-08 10:41:53,818 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.12s for 'Да, конечно, задавайте вопрос!...', size=36380 bytes
+2025-10-08 10:41:53,819 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.12s, size=36380 bytes
+2025-10-08 10:41:53,820 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759920075.140_104153819_1.wav (36380 bytes)
+2025-10-08 10:41:53,820 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759920075.140_104153819_1 (канал 1759920075.140)
+2025-10-08 10:41:53,820 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759920075.140_104153819_1 на канале 1759920075.140
+2025-10-08 10:41:53,821 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "f0a95afd-42df-4413-9962-2ac09908a960",
+  "media_uri": "sound:chunk_1759920075.140_104153819_1",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:33,029 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=5db427ff-19f2-442c-89e0-7cdc24bca40d
-2025-10-08 05:36:33,029 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.01s - 'Цены на стилоскопы зависят от ...'
-2025-10-08 05:36:33,036 - __main__ - INFO - 💾 Лог сохранён для Session 1e094ef3-a035-4511-ab96-a5453dd12a36
-2025-10-08 05:36:33,037 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759901728.122
-2025-10-08 05:36:33,037 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759901728.122 (30 сек)
-2025-10-08 05:36:33,037 - __main__ - INFO - 📝 HYBRID: Registered playback start: f85dd402... for channel 1759901728.122
-2025-10-08 05:36:33,037 - __main__ - INFO - Playback started for channel 1759901728.122: f85dd402-dcfe-42b7-81e3-9b1812b90b35
-2025-10-08 05:36:33,049 - __main__ - INFO - Playback finished for channel 1759901728.122: f85dd402-dcfe-42b7-81e3-9b1812b90b35
-2025-10-08 05:36:33,062 - __main__ - INFO - ⏳ ParallelTTS активен: 2 TTS tasks + 0 queued, VAD НЕ запускаем
-2025-10-08 05:36:33,062 - __main__ - INFO - 📝 HYBRID: Registered playback start: 5db427ff... for channel 1759901728.122
-2025-10-08 05:36:33,062 - __main__ - INFO - Playback started for channel 1759901728.122: 5db427ff-19f2-442c-89e0-7cdc24bca40d
-2025-10-08 05:36:33,147 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.12s for 'Для точной информации свяжитес...', size=79476 bytes
-2025-10-08 05:36:33,147 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 2: 0.12s, size=79476 bytes
-2025-10-08 05:36:33,148 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 2 → 1 active for 1759901728.122
-2025-10-08 05:36:36,741 - __main__ - INFO - Playback finished for channel 1759901728.122: 5db427ff-19f2-442c-89e0-7cdc24bca40d
-2025-10-08 05:36:36,755 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759901728.122
-2025-10-08 05:36:36,755 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759901728.122: TTS=0.20s
-2025-10-08 05:36:36,755 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 2: /usr/share/asterisk/sounds/ru/chunk_1759901728.122_053636755_2.wav (79476 bytes)
-2025-10-08 05:36:36,755 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 2: chunk_1759901728.122_053636755_2 (канал 1759901728.122)
-2025-10-08 05:36:36,755 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759901728.122_053636755_2 на канале 1759901728.122
-2025-10-08 05:36:36,757 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "0daa6b52-ac3d-413b-8120-778616a72d8a",
-  "media_uri": "sound:chunk_1759901728.122_053636755_2",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:53,822 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=f0a95afd-42df-4413-9962-2ac09908a960
+2025-10-08 10:41:53,822 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'Да, конечно, задавайте вопрос!...'
+2025-10-08 10:41:53,822 - __main__ - INFO - 📝 HYBRID: Registered playback start: f0a95afd... for channel 1759920075.140
+2025-10-08 10:41:53,822 - __main__ - INFO - Playback started for channel 1759920075.140: f0a95afd-42df-4413-9962-2ac09908a960
+2025-10-08 10:41:56,091 - __main__ - INFO - Playback finished for channel 1759920075.140: f0a95afd-42df-4413-9962-2ac09908a960
+2025-10-08 10:41:56,097 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759920075.140
+2025-10-08 10:41:56,098 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759920075.140: TTS=0.12s
+2025-10-08 10:41:56,099 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759920075.140
+2025-10-08 10:41:56,110 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759920075.140_20251008_104156_110498_85cf0a29, max_duration=8.0s
+2025-10-08 10:41:56,113 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759920075.140_20251008_104156_110498_85cf0a29 на канале 1759920075.140
+2025-10-08 10:41:56,116 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104156_110498_85cf0a29
+2025-10-08 10:41:56,116 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:56,116 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759920075.140
+2025-10-08 10:41:56,116 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759920075.140
+2025-10-08 10:41:56,116 - __main__ - INFO - ✅ Запись запущена: user_1759920075.140_20251008_104156_110498_85cf0a29
+2025-10-08 10:41:57,624 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759920075.140 (длительность: 1.5s)
+2025-10-08 10:41:58,830 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759920075.140 (тишина: 1.2s, общая запись: 2.7s)
+2025-10-08 10:41:58,830 - __main__ - INFO - 🎯 VAD callback: 1759920075.140, recording=user_1759920075.140_20251008_104156_110498_85cf0a29, reason=silence_detected
+2025-10-08 10:41:58,834 - __main__ - INFO - ✅ VAD остановил запись user_1759920075.140_20251008_104156_110498_85cf0a29 для канала 1759920075.140
+2025-10-08 10:41:58,835 - __main__ - INFO - 🎤 Запись завершена: user_1759920075.140_20251008_104156_110498_85cf0a29
+2025-10-08 10:41:58,835 - __main__ - INFO - ✅ Найден канал 1759920075.140 для записи user_1759920075.140_20251008_104156_110498_85cf0a29
+2025-10-08 10:41:58,835 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759920075.140
+2025-10-08 10:41:58,835 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759920075.140_20251008_104156_110498_85cf0a29.wav
+2025-10-08 10:41:58,835 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:58,835 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
+2025-10-08 10:41:58,835 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
+2025-10-08 10:41:58,835 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759920075.140_20251008_104156_110498_85cf0a29.wav
+2025-10-08 10:41:58,836 - __main__ - INFO - ⏰ Таймер звонка 1759920075.140 отменен
+2025-10-08 10:41:58,837 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759920075.140
+2025-10-08 10:41:58,837 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759920075.140_20251008_104156_110498_85cf0a29.wav
+2025-10-08 10:41:58,837 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759920075.140 - новая активность
+2025-10-08 10:41:58,837 - __main__ - INFO - 🎯 Запись для канала 1759920075.140 уже обрабатывается, пропускаем дублирование
+2025-10-08 10:41:58,837 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759920075.140: silence_detected
+2025-10-08 10:41:58,837 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
+2025-10-08 10:41:59,127 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'Как связаться с менеджерами'
+2025-10-08 10:41:59,128 - __main__ - INFO - 🎤 Пользователь сказал: 'Как связаться с менеджерами' → 'Как связаться с менеджерами'
+2025-10-08 10:41:59,129 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'Как связаться с менеджерами', 'normalized_text': 'Как связаться с менеджерами', 'length': 27, 'word_count': 4, 'has_digits': False, 'has_tech_terms': ['н', 'м', 'т', 'в', 'а'], 'has_question_words': ['как'], 'category': 'informative', 'is_informative': True}
+2025-10-08 10:41:59,129 - __main__ - INFO - ✅ Речь информативна: 'Как связаться с менеджерами' - продолжаем обработку
+2025-10-08 10:41:59,129 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
+2025-10-08 10:41:59,129 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759920075.140
+2025-10-08 10:41:59,129 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
+2025-10-08 10:41:59,129 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
+2025-10-08 10:41:59,129 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
+2025-10-08 10:41:59,129 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
+2025-10-08 10:41:59,130 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759920075.140_104159129.wav (10374 bytes)
+2025-10-08 10:41:59,130 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759920075.140_104159129 на канале 1759920075.140
+2025-10-08 10:41:59,132 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "111bea16-db4a-4f66-aa04-62425a405939",
+  "media_uri": "sound:stream_1759920075.140_104159129",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:36,757 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=0daa6b52-ac3d-413b-8120-778616a72d8a
-2025-10-08 05:36:36,757 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 2: 0.00s - 'Для точной информации свяжитес...'
-2025-10-08 05:36:36,757 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
-2025-10-08 05:36:36,757 - __main__ - INFO - 📝 HYBRID: Registered playback start: 0daa6b52... for channel 1759901728.122
-2025-10-08 05:36:36,757 - __main__ - INFO - Playback started for channel 1759901728.122: 0daa6b52-ac3d-413b-8120-778616a72d8a
-2025-10-08 05:36:41,720 - __main__ - INFO - Playback finished for channel 1759901728.122: 0daa6b52-ac3d-413b-8120-778616a72d8a
-2025-10-08 05:36:41,725 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759901728.122
-2025-10-08 05:36:41,734 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759901728.122_20251008_053641_734222_81269083, max_duration=8.0s
-2025-10-08 05:36:41,736 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759901728.122_20251008_053641_734222_81269083 на канале 1759901728.122
-2025-10-08 05:36:41,737 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053641_734222_81269083
-2025-10-08 05:36:41,737 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:41,737 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:41,737 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759901728.122
-2025-10-08 05:36:41,738 - __main__ - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053641_734222_81269083
-2025-10-08 05:36:43,243 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759901728.122 (длительность: 1.5s)
-2025-10-08 05:36:44,449 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759901728.122 (тишина: 1.2s, общая запись: 2.7s)
-2025-10-08 05:36:44,450 - __main__ - INFO - 🎯 VAD callback: 1759901728.122, recording=user_1759901728.122_20251008_053641_734222_81269083, reason=silence_detected
-2025-10-08 05:36:44,452 - __main__ - INFO - ✅ VAD остановил запись user_1759901728.122_20251008_053641_734222_81269083 для канала 1759901728.122
-2025-10-08 05:36:44,452 - __main__ - INFO - 🎤 Запись завершена: user_1759901728.122_20251008_053641_734222_81269083
-2025-10-08 05:36:44,453 - __main__ - INFO - ✅ Найден канал 1759901728.122 для записи user_1759901728.122_20251008_053641_734222_81269083
-2025-10-08 05:36:44,453 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759901728.122
-2025-10-08 05:36:44,453 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759901728.122_20251008_053641_734222_81269083.wav
-2025-10-08 05:36:44,453 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:44,453 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
-2025-10-08 05:36:44,453 - __main__ - INFO - ✅ Аудио файл проверен: 43564 bytes
-2025-10-08 05:36:44,453 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759901728.122_20251008_053641_734222_81269083.wav
-2025-10-08 05:36:44,453 - __main__ - INFO - ⏰ Таймер звонка 1759901728.122 отменен
-2025-10-08 05:36:44,453 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759901728.122
-2025-10-08 05:36:44,454 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759901728.122_20251008_053641_734222_81269083.wav
-2025-10-08 05:36:44,454 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:44,454 - __main__ - INFO - 🎯 Запись для канала 1759901728.122 уже обрабатывается, пропускаем дублирование
-2025-10-08 05:36:44,454 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759901728.122: silence_detected
-2025-10-08 05:36:44,455 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 43564 bytes, language=ru-RU
-2025-10-08 05:36:44,743 - app.backend.services.yandex_asr_service - INFO - ✅ Yandex ASR распознано: 'А спасибо'
-2025-10-08 05:36:44,744 - __main__ - INFO - 🎤 Пользователь сказал: 'А спасибо' → 'А спасибо'
-2025-10-08 05:36:44,744 - __main__ - INFO - 🧠 Анализ речи: {'original_text': 'А спасибо', 'normalized_text': 'А спасибо', 'length': 9, 'word_count': 2, 'has_digits': False, 'has_tech_terms': ['па', 'а'], 'has_question_words': [], 'category': 'informative', 'is_informative': True}
-2025-10-08 05:36:44,744 - __main__ - INFO - ✅ Речь информативна: 'А спасибо' - продолжаем обработку
-2025-10-08 05:36:44,744 - __main__ - INFO - 🚫 [OPTIMIZED BARGE-IN] UserSpeech → stopping all TTS processing
-2025-10-08 05:36:44,745 - app.backend.services.parallel_tts - INFO - 🧹 Cleared all queues for channel 1759901728.122
-2025-10-08 05:36:44,745 - __main__ - INFO - ✅ Optimized barge-in processed - ready for new input
-2025-10-08 05:36:44,745 - __main__ - INFO - 🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента
-2025-10-08 05:36:44,745 - app.backend.services.filler_tts - INFO - ⚡ Instant cached filler: 'Хм,' (0.000s)
-2025-10-08 05:36:44,745 - __main__ - INFO - ✅ WAV файл с заголовками - сохраняем как есть
-2025-10-08 05:36:44,745 - __main__ - INFO - 💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_1759901728.122_053644745.wav (10374 bytes)
-2025-10-08 05:36:44,745 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:stream_1759901728.122_053644745 на канале 1759901728.122
-2025-10-08 05:36:44,747 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "f939a31d-d614-402f-83f2-ba122a1a3189",
-  "media_uri": "sound:stream_1759901728.122_053644745",
-  "target_uri": "channel:1759901728.122",
+2025-10-08 10:41:59,133 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=111bea16-db4a-4f66-aa04-62425a405939
+2025-10-08 10:41:59,133 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: 111bea16-db4a-4f66-aa04-62425a405939
+2025-10-08 10:41:59,133 - __main__ - INFO - ⏳ Ждём проигрывание филлера (111bea16-db4a-4f66-aa04-62425a405939)... 0.8 сек
+2025-10-08 10:41:59,935 - __main__ - INFO - ⚡ Filler played: 0.81s
+2025-10-08 10:41:59,935 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
+2025-10-08 10:41:59,935 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759920075.140
+2025-10-08 10:41:59,935 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'Как связаться с менеджерами...'
+2025-10-08 10:41:59,936 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
+2025-10-08 10:41:59,936 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
+2025-10-08 10:41:59,936 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
+2025-10-08 10:41:59,936 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
+2025-10-08 10:41:59,936 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
+2025-10-08 10:41:59,936 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
+2025-10-08 10:41:59,952 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.016с
+2025-10-08 10:41:59,953 - app.backend.rag.agent - INFO - ⚡ ОПТИМИЗАЦИЯ: Embedding запроса из кеша (экономия ~0.8с)
+2025-10-08 10:42:00,611 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-08 10:42:00,635 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 0.700с
+2025-10-08 10:42:01,129 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Вы можете позвонить по телефон...'
+2025-10-08 10:42:01,131 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'Вы можете позвонить по телефон...'
+2025-10-08 10:42:01,142 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 1.206с, чанков: 31
+2025-10-08 10:42:01,142 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 1.206с, токенов: 29, предложений: 1
+2025-10-08 10:42:01,142 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 2.31s
+2025-10-08 10:42:01,142 - __main__ - INFO - 📊 Performance metrics for 1759920075.140: {'total_time': 2.3065407276153564, 'asr_complete_time': 1759920119.1289375, 'first_chunk_time': None, 'first_audio_time': 0.006125688552856445, 'filler_time': 0.8056068420410156}
+2025-10-08 10:42:01,142 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
+2025-10-08 10:42:01,149 - __main__ - INFO - 💾 Лог сохранён для Session d687257d-03a2-41e2-88df-67f4bed2965f
+2025-10-08 10:42:01,150 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759920075.140
+2025-10-08 10:42:01,150 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759920075.140 (30 сек)
+2025-10-08 10:42:01,150 - __main__ - INFO - 📝 HYBRID: Registered playback start: 111bea16... for channel 1759920075.140
+2025-10-08 10:42:01,150 - __main__ - INFO - Playback started for channel 1759920075.140: 111bea16-db4a-4f66-aa04-62425a405939
+2025-10-08 10:42:01,169 - __main__ - INFO - Playback finished for channel 1759920075.140: 111bea16-db4a-4f66-aa04-62425a405939
+2025-10-08 10:42:01,184 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
+2025-10-08 10:42:01,380 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.25s for 'Вы можете позвонить по телефон...', size=160282 bytes
+2025-10-08 10:42:01,380 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.25s, size=160282 bytes
+2025-10-08 10:42:01,381 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759920075.140_104201380_1.wav (160282 bytes)
+2025-10-08 10:42:01,381 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759920075.140_104201380_1 (канал 1759920075.140)
+2025-10-08 10:42:01,381 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759920075.140_104201380_1 на канале 1759920075.140
+2025-10-08 10:42:01,383 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
+  "id": "d5e956ea-1252-4506-85aa-a6a0c823b4f4",
+  "media_uri": "sound:chunk_1759920075.140_104201380_1",
+  "target_uri": "channel:1759920075.140",
   "language": "ru",
   "state": "queued"
 }
-2025-10-08 05:36:44,747 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=f939a31d-d614-402f-83f2-ba122a1a3189
-2025-10-08 05:36:44,747 - __main__ - INFO - ✅ Аудио воспроизводится через ARI: f939a31d-d614-402f-83f2-ba122a1a3189
-2025-10-08 05:36:44,748 - __main__ - INFO - ⚡ Filler played: 0.00s
-2025-10-08 05:36:44,945 - __main__ - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |
-2025-10-08 05:36:44,946 - __main__ - INFO - 🚀 CHUNKED TTS: Начинаем обработку AI response для канала 1759901728.122
-2025-10-08 05:36:44,946 - app.backend.rag.agent - INFO - 🕐 ПРОФИЛИРОВАНИЕ: Начало get_response_generator для вопроса: 'А спасибо...'
-2025-10-08 05:36:44,946 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Маршрутизация заняла 0.000с
-2025-10-08 05:36:44,946 - app.backend.rag.agent - INFO - Маршрутизация вопроса в БЗ: general
-2025-10-08 05:36:44,946 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Общая подготовка заняла 0.000с
-2025-10-08 05:36:44,946 - app.backend.rag.agent - INFO - 🔄 ПРОФИЛИРОВАНИЕ: Начинаем streaming с PRIMARY моделью
-2025-10-08 05:36:44,946 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Подготовка цепочки заняла 0.000с
-2025-10-08 05:36:44,946 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Вызов stream() занял 0.000с
-2025-10-08 05:36:44,955 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Первый чанк получен через 0.009с
-2025-10-08 05:36:44,957 - app.backend.rag.agent - WARNING - 🔄 МЕДЛЕННО: Создаем новый embedding для запроса (OpenAI API ~0.8с)
-2025-10-08 05:36:44,960 - app.backend.rag.agent - INFO - 🔄 Создаем 1 новых embeddings
-2025-10-08 05:36:46,113 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
-2025-10-08 05:36:46,119 - app.backend.rag.agent - INFO - 💾 Сохранен в кеш embedding запроса (заняло 1.160с)
-2025-10-08 05:36:46,805 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
-2025-10-08 05:36:46,819 - __main__ - INFO - ⚡ CHUNKED TTS: Первый токен получен через 1.873с
-2025-10-08 05:36:47,019 - app.backend.services.parallel_tts - INFO - 🚀 Processing chunk 1 immediately: 'Пожалуйста! Если будут еще воп...'
-2025-10-08 05:36:47,020 - __main__ - INFO - 🔊 DELIMITER CHUNK 1: 'Пожалуйста! Если будут еще воп...'
-2025-10-08 05:36:47,054 - app.backend.rag.agent - INFO - ⏱️ ПРОФИЛИРОВАНИЕ: Весь streaming занял 2.108с, чанков: 15
-2025-10-08 05:36:47,055 - __main__ - INFO - ✅ CHUNKED TTS: Обработка AI response заняла 2.109с, токенов: 13, предложений: 1
-2025-10-08 05:36:47,055 - __main__ - INFO - ✅ ОПТМЗРОВАННАЯ обработка завершена: 2.60s
-2025-10-08 05:36:47,055 - __main__ - INFO - 📊 Performance metrics for 1759901728.122: {'total_time': 2.6019840240478516, 'asr_complete_time': 1759901804.744638, 'first_chunk_time': None, 'first_audio_time': 0.005961179733276367, 'filler_time': 0.0029478073120117188}
-2025-10-08 05:36:47,055 - __main__ - INFO - 💾 Сохраняем лог со статусом: InProgress
-2025-10-08 05:36:47,062 - __main__ - INFO - 💾 Лог сохранён для Session 1e094ef3-a035-4511-ab96-a5453dd12a36
-2025-10-08 05:36:47,063 - __main__ - INFO - ✅ Ответ AI завершен, готов к следующему вопросу от 1759901728.122
-2025-10-08 05:36:47,063 - __main__ - INFO - ⏰ Таймер завершения звонка запущен для 1759901728.122 (30 сек)
-2025-10-08 05:36:47,063 - __main__ - INFO - 📝 HYBRID: Registered playback start: f939a31d... for channel 1759901728.122
-2025-10-08 05:36:47,063 - __main__ - INFO - Playback started for channel 1759901728.122: f939a31d-d614-402f-83f2-ba122a1a3189
-2025-10-08 05:36:47,075 - __main__ - INFO - Playback finished for channel 1759901728.122: f939a31d-d614-402f-83f2-ba122a1a3189
-2025-10-08 05:36:47,087 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
-2025-10-08 05:36:47,179 - app.backend.services.yandex_grpc_tts - INFO - ⚡ gRPC TTS (8kHz WAV): 0.16s for 'Пожалуйста! Если будут еще воп...', size=53842 bytes
-2025-10-08 05:36:47,179 - app.backend.services.parallel_tts - INFO - ✅ TTS done for chunk 1: 0.16s, size=53842 bytes
-2025-10-08 05:36:47,181 - app.backend.services.parallel_tts - INFO - 💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_1759901728.122_053647179_1.wav (53842 bytes)
-2025-10-08 05:36:47,181 - app.backend.services.parallel_tts - INFO - 🎵 Воспроизводим chunk 1: chunk_1759901728.122_053647179_1 (канал 1759901728.122)
-2025-10-08 05:36:47,181 - app.backend.asterisk.ari_client - INFO - Проигрываем звук: sound:chunk_1759901728.122_053647179_1 на канале 1759901728.122
-2025-10-08 05:36:47,184 - app.backend.asterisk.ari_client - INFO - 🔍 ARI Response: status=201, body={
-  "id": "394f511c-abd3-43af-80b6-ce5c5530aab8",
-  "media_uri": "sound:chunk_1759901728.122_053647179_1",
-  "target_uri": "channel:1759901728.122",
-  "language": "ru",
-  "state": "queued"
-}
-2025-10-08 05:36:47,184 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=394f511c-abd3-43af-80b6-ce5c5530aab8
-2025-10-08 05:36:47,184 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.01s - 'Пожалуйста! Если будут еще воп...'
-2025-10-08 05:36:47,188 - __main__ - INFO - 📝 HYBRID: Registered playback start: 394f511c... for channel 1759901728.122
-2025-10-08 05:36:47,191 - __main__ - INFO - Playback started for channel 1759901728.122: 394f511c-abd3-43af-80b6-ce5c5530aab8
-2025-10-08 05:36:50,545 - __main__ - INFO - Playback finished for channel 1759901728.122: 394f511c-abd3-43af-80b6-ce5c5530aab8
-2025-10-08 05:36:50,550 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759901728.122
-2025-10-08 05:36:50,551 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759901728.122: TTS=0.16s
-2025-10-08 05:36:50,551 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759901728.122
-2025-10-08 05:36:50,556 - __main__ - INFO - 🎤 Запускаем VAD запись речи пользователя: user_1759901728.122_20251008_053650_556377_086e4936, max_duration=8.0s
-2025-10-08 05:36:50,558 - app.backend.asterisk.ari_client - INFO - Запускаем запись: user_1759901728.122_20251008_053650_556377_086e4936 на канале 1759901728.122
-2025-10-08 05:36:50,559 - app.backend.asterisk.ari_client - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053650_556377_086e4936
-2025-10-08 05:36:50,560 - app.backend.services.simple_vad_service - INFO - ✅ VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:50,560 - __main__ - INFO - 🎯 VAD мониторинг запущен для канала 1759901728.122
-2025-10-08 05:36:50,560 - __main__ - INFO - 🧠 Умная детекция речи активирована для канала 1759901728.122
-2025-10-08 05:36:50,560 - __main__ - INFO - ✅ Запись запущена: user_1759901728.122_20251008_053650_556377_086e4936
-2025-10-08 05:36:51,921 - __main__ - INFO - 🎤 Запись завершена: user_1759901728.122_20251008_053650_556377_086e4936
-2025-10-08 05:36:51,921 - __main__ - INFO - ✅ Найден канал 1759901728.122 для записи user_1759901728.122_20251008_053650_556377_086e4936
-2025-10-08 05:36:51,921 - __main__ - INFO - ✅ Сброшен флаг записи для канала 1759901728.122
-2025-10-08 05:36:51,921 - __main__ - INFO - ✅ Файл записи найден: /var/spool/asterisk/recording/user_1759901728.122_20251008_053650_556377_086e4936.wav
-2025-10-08 05:36:51,921 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:51,921 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
-2025-10-08 05:36:51,921 - __main__ - INFO - ✅ Аудио файл проверен: 17964 bytes
-2025-10-08 05:36:51,921 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759901728.122_20251008_053650_556377_086e4936.wav
-2025-10-08 05:36:51,921 - __main__ - INFO - ⏰ Таймер звонка 1759901728.122 отменен
-2025-10-08 05:36:51,922 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 17964 bytes, language=ru-RU
-2025-10-08 05:36:52,067 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759901728.122 (длительность: 1.5s)
-2025-10-08 05:36:52,117 - app.backend.services.yandex_asr_service - WARNING - ⚠️ Yandex ASR вернул пустой результат
-2025-10-08 05:36:52,118 - __main__ - INFO - 🎤 Пользователь сказал: '' → ''
-2025-10-08 05:36:52,118 - __main__ - WARNING - ⚠️ ASR вернул пустой результат, пропускаем обработку
-2025-10-08 05:36:53,375 - app.backend.services.simple_vad_service - INFO - VAD: Тишина обнаружена для 1759901728.122 (длительность: 1.3s)
-2025-10-08 05:36:54,579 - app.backend.services.simple_vad_service - INFO - VAD: Окончание речи детектировано для 1759901728.122 (тишина: 1.2s, общая запись: 4.0s)
-2025-10-08 05:36:54,579 - __main__ - INFO - 🎯 VAD callback: 1759901728.122, recording=user_1759901728.122_20251008_053650_556377_086e4936, reason=silence_detected
-2025-10-08 05:36:54,581 - __main__ - INFO - ✅ VAD остановил запись user_1759901728.122_20251008_053650_556377_086e4936 для канала 1759901728.122
-2025-10-08 05:36:54,582 - app.backend.services.simple_vad_service - WARNING - VAD мониторинг не активен для канала 1759901728.122
-2025-10-08 05:36:54,582 - __main__ - INFO - 🎯 VAD: Обрабатываем аудио файл: /var/spool/asterisk/recording/user_1759901728.122_20251008_053650_556377_086e4936.wav
-2025-10-08 05:36:54,582 - __main__ - INFO - ⏰ Таймер завершения сброшен для 1759901728.122 - новая активность
-2025-10-08 05:36:54,582 - __main__ - INFO - 🎯 Оптимизированная обработка речи активирована
-2025-10-08 05:36:54,582 - __main__ - INFO - ✅ Аудио файл проверен: 17964 bytes
-2025-10-08 05:36:54,582 - __main__ - INFO - 🎤 Запускаем ASR для файла: /var/spool/asterisk/recording/user_1759901728.122_20251008_053650_556377_086e4936.wav
-2025-10-08 05:36:54,582 - app.backend.services.yandex_asr_service - INFO - 🎤 Yandex ASR запрос: 17964 bytes, language=ru-RU
-2025-10-08 05:36:54,796 - app.backend.services.yandex_asr_service - WARNING - ⚠️ Yandex ASR вернул пустой результат
-2025-10-08 05:36:54,796 - __main__ - INFO - 🎤 Пользователь сказал: '' → ''
-2025-10-08 05:36:54,797 - __main__ - WARNING - ⚠️ ASR вернул пустой результат, пропускаем обработку
-2025-10-08 05:36:54,797 - app.backend.services.simple_vad_service - INFO - ✅ VAD запись завершена для 1759901728.122: silence_detected
-2025-10-08 05:37:20,733 - __main__ - INFO - 📞 Канал 1759901728.122 недоступен - завершаем звонок
-2025-10-08 05:37:20,733 - __main__ - INFO - ✅ Завершаем звонок 1759901728.122 - channel_unavailable
-2025-10-08 05:37:20,734 - __main__ - INFO - 💾 Сохраняем лог со статусом: Completed
-2025-10-08 05:37:20,741 - __main__ - INFO - 💾 Лог сохранён для Session 1e094ef3-a035-4511-ab96-a5453dd12a36
-2025-10-08 05:37:20,741 - __main__ - INFO - ✅ Звонок 1759901728.122 завершен - channel_unavailable
+2025-10-08 10:42:01,383 - app.backend.asterisk.ari_client - INFO - ✅ Проигрывание принято ARI (status=201), playback_id=d5e956ea-1252-4506-85aa-a6a0c823b4f4
+2025-10-08 10:42:01,384 - app.backend.services.parallel_tts - INFO - 🔊 Played chunk 1: 0.00s - 'Вы можете позвонить по телефон...'
+2025-10-08 10:42:01,384 - __main__ - INFO - 📝 HYBRID: Registered playback start: d5e956ea... for channel 1759920075.140
+2025-10-08 10:42:01,384 - __main__ - INFO - Playback started for channel 1759920075.140: d5e956ea-1252-4506-85aa-a6a0c823b4f4
+2025-10-08 10:42:06,953 - __main__ - INFO - Playback finished for channel 1759920075.140: d5e956ea-1252-4506-85aa-a6a0c823b4f4
+2025-10-08 10:42:06,964 - __main__ - INFO - ⏳ ParallelTTS активен: 1 TTS tasks + 0 queued, VAD НЕ запускаем
+2025-10-08 10:42:10,713 - __main__ - INFO - 📞 Канал 1759920075.140 недоступен - завершаем звонок
+2025-10-08 10:42:10,713 - __main__ - INFO - ✅ Завершаем звонок 1759920075.140 - channel_unavailable
+2025-10-08 10:42:10,713 - __main__ - INFO - 💾 Сохраняем лог со статусом: Completed
+2025-10-08 10:42:10,721 - __main__ - INFO - 💾 Лог сохранён для Session d687257d-03a2-41e2-88df-67f4bed2965f
+2025-10-08 10:42:10,721 - __main__ - INFO - ✅ Звонок 1759920075.140 завершен - channel_unavailable
+2025-10-08 10:42:11,402 - app.backend.services.parallel_tts - INFO - 🎯 FIRST AUDIO PLAYED for 1759920075.140
+2025-10-08 10:42:11,403 - app.backend.services.parallel_tts - INFO - 📊 First audio metrics for 1759920075.140: TTS=0.25s
+2025-10-08 10:42:11,403 - app.backend.services.parallel_tts - INFO - 🧹 TTS task cleanup: 1 → 0 active for 1759920075.140

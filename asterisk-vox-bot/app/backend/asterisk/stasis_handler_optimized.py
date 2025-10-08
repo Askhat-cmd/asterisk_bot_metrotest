@@ -807,10 +807,11 @@ class OptimizedAsteriskAIHandler:
                 logger.warning("⚠️ Пустые аудио данные")
                 return None
             
-            # Сохраняем аудио данные во временный файл
+            # ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Единый путь с chunks для корректного воспроизведения!
+            # Сохраняем в языковую папку /usr/share/asterisk/sounds/ru/ (как chunks)
             timestamp = datetime.now().strftime('%H%M%S%f')[:-3]  # миллисекунды
-            temp_filename = f"stream_{channel_id}_{timestamp}.wav"
-            temp_path = f"/var/lib/asterisk/sounds/{temp_filename}"
+            temp_filename = f"filler_{channel_id}_{timestamp}.wav"
+            temp_path = f"/usr/share/asterisk/sounds/ru/{temp_filename}"
             
             # Создаем директорию если не существует
             os.makedirs(os.path.dirname(temp_path), exist_ok=True)
@@ -830,9 +831,22 @@ class OptimizedAsteriskAIHandler:
             
             logger.info(f"💾 Сохранен аудио файл: {temp_path} ({len(audio_data)} bytes)")
             
-            # Воспроизводим через ARI (как в оригинальном коде)
+            # ✅ Устанавливаем права для Asterisk
+            try:
+                import pwd, grp
+                uid = pwd.getpwnam("asterisk").pw_uid
+                gid = grp.getgrnam("asterisk").gr_gid
+                os.chown(temp_path, uid, gid)
+                os.chmod(temp_path, 0o644)
+            except Exception as e:
+                logger.warning(f"⚠️ Не удалось установить права на файл: {e}")
+            
+            # ✅ Воспроизводим через ARI с ЯВНЫМ указанием языка ru/
+            filename_no_ext = temp_filename[:-4]  # убираем .wav
+            media_uri = f"ru/{filename_no_ext}"  # Явно указываем языковую папку
+            
             async with AsteriskARIClient() as ari:
-                playback_id = await ari.play_sound(channel_id, temp_filename[:-4], lang=None)  # убираем .wav
+                playback_id = await ari.play_sound(channel_id, media_uri, lang=None)
                 
                 if playback_id:
                     # Обновляем данные канала
