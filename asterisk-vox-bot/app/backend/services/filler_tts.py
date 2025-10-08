@@ -89,17 +89,12 @@ class InstantFillerTTS:
                 audio = self.cached_fillers[filler]
                 elapsed = time.time() - start_time
                 logger.info(f"⚡ Instant cached filler: '{filler}' ({elapsed:.3f}s)")
-                # ✅ Диагностика размера для отладки
-                logger.info(f"📏 Filler audio size: {len(audio)} bytes for '{filler}'")
-                if len(audio) < 1000:
-                    logger.warning(f"⚠️ Suspicious small filler size: {len(audio)} bytes")
                 return audio
             else:
                 # Fallback - генерируем на лету через gRPC
                 audio = await self._synthesize_filler_grpc(filler)
                 elapsed = time.time() - start_time
                 logger.info(f"⚡ Generated filler on-the-fly: '{filler}' ({elapsed:.3f}s)")
-                logger.info(f"📏 Filler audio size: {len(audio)} bytes for '{filler}'")
                 return audio
                 
         except Exception as e:

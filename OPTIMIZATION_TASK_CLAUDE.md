@@ -794,7 +794,249 @@ async def ari_worker(client):
 
 ---
 
+## 🔬 ЭКСПЕРИМЕНТЫ С ФИЛЛЕРАМИ И BARGE-IN (8 октября 2025)
+
+### ⚠️ СТАТУС: НЕ РЕАЛИЗОВАНО (откат после тестирования)
+
+**Причина отката:** 
+1. Филлеры звучат неестественно в реализованном виде
+2. Попытки прерывания бота приводят к нестабильной работе
+3. Заказчик доволен текущей производительностью без этих фич
+
+---
+
+### 🎤 ЭКСПЕРИМЕНТ 1: Включение озвучивания филлеров
+
+#### Проблема
+Филлеры генерировались и кешировались, но **не были слышны** пользователю.
+
+#### Диагностика (из логов и рекомендаций другой AI)
+
+**Что видели в логах:**
+```
+💾 Сохранен аудио файл: /var/lib/asterisk/sounds/stream_...  (филлер)
+💾 Saved chunk 1: /usr/share/asterisk/sounds/ru/chunk_...     (chunk)
+```
+
+**Проблема:** Два разных пути!
+- **Филлеры:** `/var/lib/asterisk/sounds/` (БЕЗ `ru/`)
+- **Chunks:** `/usr/share/asterisk/sounds/ru/` (С `ru/`)
+
+**Причина:** При активной локали `ru` Asterisk ищет файлы в `/sounds/ru/`, поэтому филлеры "играли в пустоту".
+
+#### ✅ Решение: Унифицировать путь
+
+**Изменения в `stasis_handler_optimized.py`:**
+
+```python
+async def _play_audio_data(self, channel_id: str, audio_data: bytes) -> Optional[str]:
+    # БЫЛО:
+    # temp_path = f"/var/lib/asterisk/sounds/{temp_filename}"
+    
+    # СТАЛО:
+    temp_path = f"/usr/share/asterisk/sounds/ru/{temp_filename}"
+    
+    # Установка прав для Asterisk
+    try:
+        import pwd, grp
+        uid = pwd.getpwnam("asterisk").pw_uid
+        gid = grp.getgrnam("asterisk").gr_gid
+        os.chown(temp_path, uid, gid)
+        os.chmod(temp_path, 0o644)
+    except Exception as e:
+        logger.warning(f"⚠️ Не удалось установить права: {e}")
+    
+    # Воспроизведение с явным указанием языка
+    playback_id = await ari.play_sound(channel_id, temp_filename[:-4], lang="ru")
+```
+
+**Результат тестирования:** ✅ Филлеры стали слышны, но звучат неестественно.
+
+---
+
+### 🛑 ЭКСПЕРИМЕНТ 2: Реализация Barge-in (прерывание бота)
+
+#### Проблема
+Пользователь не может прервать бота голосом во время проигрывания ответа.
+
+#### Попытка решения
+
+**Шаг 1: Добавили метод `stop_playback` в `ari_client.py`**
+
+```python
+async def stop_playback(self, playback_id: str) -> bool:
+    """
+    Останавливает воспроизведение по ID через DELETE /playbacks/{id}
+    """
+    try:
+        url = f"{self.base_url}/playbacks/{playback_id}"
+        async with self.session.delete(url) as response:
+            if response.status in (200, 204):
+                logger.info(f"✅ Playback {playback_id} остановлен")
+                return True
+            else:
+                logger.warning(f"⚠️ Не удалось остановить: {response.status}")
+                return False
+    except Exception as e:
+        logger.error(f"❌ Ошибка остановки: {e}")
+        return False
+```
+
+**Шаг 2: Добавили трекинг активных playback в `parallel_tts.py`**
+
+```python
+class ParallelTTSProcessor:
+    def __init__(self, ...):
+        # Трекинг всех активных playback ID для barge-in
+        self.active_playbacks: Dict[str, set] = defaultdict(set)
+    
+    # При запуске playback
+    async def _playback_worker(self, ...):
+        if playback_id:
+            self.active_playbacks[channel_id].add(playback_id)
+            logger.info(f"🎵 Added playback {playback_id} to tracking")
+    
+    # При завершении playback
+    def on_playback_finished(self, channel_id: str, playback_id: str):
+        if channel_id in self.active_playbacks:
+            self.active_playbacks[channel_id].discard(playback_id)
+            logger.info(f"🧹 Removed playback {playback_id} from tracking")
+```
+
+**Шаг 3: Реализовали остановку в `clear_all_queues`**
+
+```python
+async def clear_all_queues(self, channel_id: str):
+    # Останавливаем все активные playbacks
+    for pid in list(self.active_playbacks.get(channel_id, set())):
+        try:
+            ok = await self.ari.stop_playback(pid)
+            if ok:
+                logger.info(f"🛑 Stopped active playback: {pid}")
+        except Exception as e:
+            logger.warning(f"⚠️ Could not stop: {e}")
+    
+    self.active_playbacks[channel_id].clear()
+```
+
+**Шаг 4: Добавили очистку в `PlaybackFinished` обработчике**
+
+```python
+async def on_playback_finished(self, ...):
+    # Удаляем playback из трекинга ParallelTTS
+    if self.parallel_tts and playback_id:
+        if channel_id in self.parallel_tts.active_playbacks:
+            before_count = len(self.parallel_tts.active_playbacks[channel_id])
+            self.parallel_tts.active_playbacks[channel_id].discard(playback_id)
+            after_count = len(self.parallel_tts.active_playbacks[channel_id])
+            logger.info(f"🧹 Removed {playback_id[:8]}: {before_count} → {after_count}")
+```
+
+**Шаг 5: Критическое исправление - проверка `active_playbacks` перед VAD**
+
+**Обнаруженная проблема:** Бот запускал VAD сразу после первого chunk, не дожидаясь второго!
+
+```python
+# БЫЛО (проверялись только tts_tasks и playback_queues):
+if self.parallel_tts:
+    active_tts = len(self.parallel_tts.tts_tasks.get(channel_id, []))
+    queued_chunks = len(self.parallel_tts.playback_queues.get(channel_id, []))
+    
+    if active_tts > 0 or queued_chunks > 0:
+        logger.info(f"⏳ ParallelTTS активен: {active_tts} TTS + {queued_chunks} queued")
+        return
+
+# СТАЛО (добавлена проверка играющих playback):
+if self.parallel_tts:
+    active_tts = len(self.parallel_tts.tts_tasks.get(channel_id, []))
+    queued_chunks = len(self.parallel_tts.playback_queues.get(channel_id, []))
+    active_playbacks = len(self.parallel_tts.active_playbacks.get(channel_id, set()))
+    
+    if active_tts > 0 or queued_chunks > 0 or active_playbacks > 0:
+        logger.info(f"⏳ {active_tts} TTS + {queued_chunks} queued + {active_playbacks} playing")
+        return
+```
+
+**Почему это важно:**
+1. Chunk 1 начал играть → удалён из `playback_queues`
+2. Chunk 2 сгенерирован → `tts_tasks` = 0
+3. Chunk 1 закончился → `PlaybackFinished`
+4. ❌ Без проверки `active_playbacks`: "Всё готово!" → VAD запускается → Chunk 2 играет → конфликт!
+5. ✅ С проверкой `active_playbacks`: "Chunk 2 ещё играет!" → VAD не запускается → ждём
+
+#### ❌ Результат тестирования
+
+**Проблемы:**
+1. **Нестабильность:** Попытки прерывания приводили к сбоям в логике
+2. **Неестественность:** Филлеры в озвученном виде звучали неестественно
+3. **Сложность:** Код стал более сложным и хрупким
+
+**Решение:** Откат к стабильной версии (backup_before_stop_playback_20251008_102249.tar.gz)
+
+---
+
+### 💡 ЧТО БЫЛО ИЗУЧЕНО И МОЖЕТ ПРИГОДИТЬСЯ
+
+#### 1. Путь к файлам в Asterisk с локалью
+- ✅ **Chunks и филлеры должны быть в ОДНОЙ папке:** `/usr/share/asterisk/sounds/ru/`
+- ✅ **Права:** `asterisk:asterisk`, chmod `0644`
+- ✅ **Media URI:** `sound:ru/<filename>` (без расширения)
+
+#### 2. ARI Playback Management
+- ✅ **Запуск:** `POST /channels/{channelId}/play`
+- ✅ **Остановка:** `DELETE /playbacks/{playbackId}` (статус 200/204)
+- ✅ **События:** `PlaybackStarted`, `PlaybackFinished`
+- ✅ **Трекинг:** Нужен словарь `active_playbacks: Dict[str, set]`
+
+#### 3. Критичные проверки перед VAD
+**Обязательно проверять ВСЕ три условия:**
+```python
+active_tts > 0       # Генерация TTS ещё идёт
+queued_chunks > 0    # Chunks в очереди на воспроизведение
+active_playbacks > 0 # Chunks УЖЁ ИГРАЮТ (важно!)
+```
+
+#### 4. Возможные улучшения (если вернуться к этой задаче)
+
+**Для филлеров:**
+- Использовать более естественные звуки (не слова, а "Хмм", "Эмм")
+- Регулировать громкость филлера (тише основного ответа)
+- Добавить случайную вариацию (не всегда одинаковый филлер)
+
+**Для barge-in:**
+- Добавить debouncing (игнорировать очень короткие прерывания)
+- Плавное затухание вместо резкой остановки
+- Буфер для восстановления контекста после прерывания
+
+---
+
+### 📦 Файлы для восстановления экспериментов
+
+Если понадобится вернуться к этим экспериментам:
+
+**Бекапы:**
+- **Стабильная версия (БЕЗ филлеров/barge-in):** `backup_before_stop_playback_20251008_102249.tar.gz`
+- **С экспериментами:** Все коммиты после `8 октября 11:00 UTC` в Git
+
+**Ключевые файлы изменений:**
+- `app/backend/asterisk/stasis_handler_optimized.py` (основная логика)
+- `app/backend/asterisk/ari_client.py` (метод `stop_playback`)
+- `app/backend/services/parallel_tts.py` (трекинг `active_playbacks`)
+- `app/backend/services/filler_tts.py` (логирование размера)
+
+**Коммиты в Git:**
+- `fix: Исправлен путь для филлеров - /usr/share/asterisk/sounds/ru/`
+- `feat: Реализован полноценный barge-in - трекинг playback`
+- `fix: Очистка завершенных playback из трекинга`
+- `fix: КРИТИЧЕСКОЕ - добавлена проверка active_playbacks перед VAD`
+
+---
+
+**Вывод:** Эксперименты показали техническую возможность реализации, но результат не соответствует ожиданиям по качеству UX. Текущая стабильная версия предпочтительнее.
+
+---
+
 **Автор оптимизации:** Claude (Anthropic)  
 **Дата завершения основной работы:** 7 октября 2025  
-**Дата обновления документации:** 8 октября 2025, 07:30 UTC  
-**Версия документа:** 2.1 (добавлен раздел "Будущие оптимизации")
+**Дата обновления документации:** 8 октября 2025, 11:55 UTC  
+**Версия документа:** 2.2 (добавлен раздел "Эксперименты с филлерами и barge-in")

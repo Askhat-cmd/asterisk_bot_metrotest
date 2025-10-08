@@ -378,9 +378,14 @@ class OptimizedAsteriskAIHandler:
                 logger.info(f"🤖 Запрашиваем ОПТМЗРОВАННЫЙ ответ от AI агента")
                 
                 try:
-                    # ✅ ИСПРАВЛЕНО: Запускаем filler word СИНХРОННО и ждём его завершения!
-                    # Функция _play_instant_filler теперь сама ждёт 0.8 сек внутри себя
-                    await self._play_instant_filler(channel_id, normalized_text)
+                    # ✅ ОПТИМИЗАЦИЯ: Запускаем filler word НЕМЕДЛЕННО!
+                    filler_task = asyncio.create_task(
+                        self._play_instant_filler(channel_id, normalized_text)
+                    )
+                    
+                    # ✅ КРИТИЧНО: Даём filler ДОСТАТОЧНО времени начать воспроизведение (200мс)
+                    # Это оптимальный баланс: достаточно для старта, но не слишком долго
+                    await asyncio.sleep(0.20)
                     
                     # ✅ CHUNKED STREAMING ACTIVATED! (Психологический эффект)
                     logger.info("🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |")
@@ -392,8 +397,10 @@ class OptimizedAsteriskAIHandler:
                     # Обрабатываем AI ответы через streaming с chunked TTS
                     await self.process_ai_response_streaming_with_chunked_tts(channel_id, response_generator)
                     
-                    # ✅ ИСПРАВЛЕНО: Филлер уже проигран синхронно, не нужно ждать task
-                    # Филлер проигрался полностью (0.7 сек задержка) перед запуском AI
+                    # НЕ ждем завершения filler - он уже сыгран параллельно!
+                    # (Но на всякий случай проверяем что не осталось висеть)
+                    if not filler_task.done():
+                        await filler_task
                     
                     total_time = time.time() - overall_start
                     logger.info(f"✅ ОПТМЗРОВАННАЯ обработка завершена: {total_time:.2f}s")
@@ -441,16 +448,7 @@ class OptimizedAsteriskAIHandler:
                 self.active_calls[channel_id]["processing_speech"] = False
 
     async def _play_instant_filler(self, channel_id: str, user_text: str) -> Optional[str]:
-        """
-        Воспроизводит мгновенный filler word и ЖДЁТ его завершения.
-        
-        Args:
-            channel_id: ID канала
-            user_text: Текст пользователя для контекстного выбора филлера
-            
-        Returns:
-            playback_id или None
-        """
+        """Воспроизводит мгновенный filler word и возвращает playback_id"""
         try:
             if not self.filler_tts:
                 return None
@@ -463,12 +461,6 @@ class OptimizedAsteriskAIHandler:
             if filler_audio:
                 # Воспроизводим немедленно
                 playback_id = await self._play_audio_data(channel_id, filler_audio)
-                
-                if playback_id:
-                    # ✅ КРИТИЧНО: ЖДЁМ чтобы филлер реально проигрался!
-                    # Филлеры длятся ~0.6 сек, ждём 0.8 сек для гарантии
-                    logger.info(f"⏳ Ждём проигрывание филлера ({playback_id})... 0.8 сек")
-                    await asyncio.sleep(0.80)
                 
                 filler_time = time.time() - filler_start
                 logger.info(f"⚡ Filler played: {filler_time:.2f}s")
@@ -807,11 +799,10 @@ class OptimizedAsteriskAIHandler:
                 logger.warning("⚠️ Пустые аудио данные")
                 return None
             
-            # ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Единый путь с chunks для корректного воспроизведения!
-            # Сохраняем в языковую папку /usr/share/asterisk/sounds/ru/ (как chunks)
+            # Сохраняем аудио данные во временный файл
             timestamp = datetime.now().strftime('%H%M%S%f')[:-3]  # миллисекунды
-            temp_filename = f"filler_{channel_id}_{timestamp}.wav"
-            temp_path = f"/usr/share/asterisk/sounds/ru/{temp_filename}"
+            temp_filename = f"stream_{channel_id}_{timestamp}.wav"
+            temp_path = f"/var/lib/asterisk/sounds/{temp_filename}"
             
             # Создаем директорию если не существует
             os.makedirs(os.path.dirname(temp_path), exist_ok=True)
@@ -831,22 +822,9 @@ class OptimizedAsteriskAIHandler:
             
             logger.info(f"💾 Сохранен аудио файл: {temp_path} ({len(audio_data)} bytes)")
             
-            # ✅ Устанавливаем права для Asterisk
-            try:
-                import pwd, grp
-                uid = pwd.getpwnam("asterisk").pw_uid
-                gid = grp.getgrnam("asterisk").gr_gid
-                os.chown(temp_path, uid, gid)
-                os.chmod(temp_path, 0o644)
-            except Exception as e:
-                logger.warning(f"⚠️ Не удалось установить права на файл: {e}")
-            
-            # ✅ Воспроизводим через ARI с ЯВНЫМ указанием языка ru/
-            filename_no_ext = temp_filename[:-4]  # убираем .wav
-            media_uri = f"ru/{filename_no_ext}"  # Явно указываем языковую папку
-            
+            # Воспроизводим через ARI (как в оригинальном коде)
             async with AsteriskARIClient() as ari:
-                playback_id = await ari.play_sound(channel_id, media_uri, lang=None)
+                playback_id = await ari.play_sound(channel_id, temp_filename[:-4], lang=None)  # убираем .wav
                 
                 if playback_id:
                     # Обновляем данные канала
@@ -972,17 +950,11 @@ class OptimizedAsteriskAIHandler:
         
         # Останавливаем текущее воспроизведение
         if call_data.get("current_playback"):
-            playback_id = call_data["current_playback"]
-            logger.info(f"🛑 Останавливаем playback: {playback_id}")
             try:
                 async with AsteriskARIClient() as ari:
-                    result = await ari.stop_playback(playback_id)
-                    if result:
-                        logger.info(f"✅ Playback {playback_id} успешно остановлен")
-                    else:
-                        logger.warning(f"⚠️ Не удалось остановить playback {playback_id}")
-            except Exception as e:
-                logger.error(f"❌ Ошибка остановки playback {playback_id}: {e}")
+                    await ari.stop_playback(call_data["current_playback"])
+            except:
+                pass
         
         # КРТЧНО: Очищаем все очереди параллельного TTS
         if self.parallel_tts:
@@ -1386,14 +1358,6 @@ class OptimizedAsteriskAIHandler:
 
         call_data["is_speaking"] = False
         call_data["current_playback"] = None
-        
-        # ✅ КРИТИЧНО: Удаляем playback из трекинга ParallelTTS
-        if self.parallel_tts and playback_id:
-            if channel_id in self.parallel_tts.active_playbacks:
-                before_count = len(self.parallel_tts.active_playbacks[channel_id])
-                self.parallel_tts.active_playbacks[channel_id].discard(playback_id)
-                after_count = len(self.parallel_tts.active_playbacks[channel_id])
-                logger.info(f"🧹 Removed playback {playback_id[:8]}... from tracking: {before_count} → {after_count} active")
 
         if bridge_id:
             logger.info("Playback finished on bridge %s for channel %s: %s", bridge_id, channel_id, playback_id)
@@ -1406,15 +1370,14 @@ class OptimizedAsteriskAIHandler:
             logger.info("Recording already in progress for %s, skip restart", channel_id)
             return
 
-        # ✅ КРИТИЧНО: Проверяем АКТИВНЫЕ TTS ЗАДАЧИ + ОЧЕРЕДЬ + ИГРАЮЩИЕ PLAYBACK перед запуском VAD
+        # ✅ КРИТИЧНО: Проверяем АКТИВНЫЕ TTS ЗАДАЧИ + ОЧЕРЕДЬ перед запуском VAD
         # Проблема: chunk может быть в процессе генерации, но еще не в очереди!
         if self.parallel_tts:
             active_tts = len(self.parallel_tts.tts_tasks.get(channel_id, []))
             queued_chunks = len(self.parallel_tts.playback_queues.get(channel_id, []))
-            active_playbacks = len(self.parallel_tts.active_playbacks.get(channel_id, set()))
             
-            if active_tts > 0 or queued_chunks > 0 or active_playbacks > 0:
-                logger.info(f"⏳ ParallelTTS активен: {active_tts} TTS tasks + {queued_chunks} queued + {active_playbacks} playing, VAD НЕ запускаем")
+            if active_tts > 0 or queued_chunks > 0:
+                logger.info(f"⏳ ParallelTTS активен: {active_tts} TTS tasks + {queued_chunks} queued, VAD НЕ запускаем")
                 return
 
         # ТОЛЬКО ЕСЛИ НЕТ АКТИВНЫХ TTS И ОЧЕРЕДЬ ПУСТА - запускаем VAD
