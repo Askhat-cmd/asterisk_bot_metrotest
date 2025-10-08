@@ -379,12 +379,8 @@ class OptimizedAsteriskAIHandler:
                 
                 try:
                     # ✅ ИСПРАВЛЕНО: Запускаем filler word СИНХРОННО и ждём его завершения!
-                    # Это гарантирует, что пользователь УСЛЫШИТ филлер перед ответом AI
+                    # Функция _play_instant_filler теперь сама ждёт 0.8 сек внутри себя
                     await self._play_instant_filler(channel_id, normalized_text)
-                    
-                    # ✅ КРИТИЧНО: Даём filler время проиграться (минимум 0.5 сек)
-                    # Филлеры длятся ~0.6 сек, поэтому ждём 0.7 сек для гарантии
-                    await asyncio.sleep(0.70)
                     
                     # ✅ CHUNKED STREAMING ACTIVATED! (Психологический эффект)
                     logger.info("🚀 ОПТИМИЗАЦИЯ: Используем chunked streaming с разделителями |")
@@ -445,7 +441,16 @@ class OptimizedAsteriskAIHandler:
                 self.active_calls[channel_id]["processing_speech"] = False
 
     async def _play_instant_filler(self, channel_id: str, user_text: str) -> Optional[str]:
-        """Воспроизводит мгновенный filler word и возвращает playback_id"""
+        """
+        Воспроизводит мгновенный filler word и ЖДЁТ его завершения.
+        
+        Args:
+            channel_id: ID канала
+            user_text: Текст пользователя для контекстного выбора филлера
+            
+        Returns:
+            playback_id или None
+        """
         try:
             if not self.filler_tts:
                 return None
@@ -458,6 +463,12 @@ class OptimizedAsteriskAIHandler:
             if filler_audio:
                 # Воспроизводим немедленно
                 playback_id = await self._play_audio_data(channel_id, filler_audio)
+                
+                if playback_id:
+                    # ✅ КРИТИЧНО: ЖДЁМ чтобы филлер реально проигрался!
+                    # Филлеры длятся ~0.6 сек, ждём 0.8 сек для гарантии
+                    logger.info(f"⏳ Ждём проигрывание филлера ({playback_id})... 0.8 сек")
+                    await asyncio.sleep(0.80)
                 
                 filler_time = time.time() - filler_start
                 logger.info(f"⚡ Filler played: {filler_time:.2f}s")
@@ -947,11 +958,17 @@ class OptimizedAsteriskAIHandler:
         
         # Останавливаем текущее воспроизведение
         if call_data.get("current_playback"):
+            playback_id = call_data["current_playback"]
+            logger.info(f"🛑 Останавливаем playback: {playback_id}")
             try:
                 async with AsteriskARIClient() as ari:
-                    await ari.stop_playback(call_data["current_playback"])
-            except:
-                pass
+                    result = await ari.stop_playback(playback_id)
+                    if result:
+                        logger.info(f"✅ Playback {playback_id} успешно остановлен")
+                    else:
+                        logger.warning(f"⚠️ Не удалось остановить playback {playback_id}")
+            except Exception as e:
+                logger.error(f"❌ Ошибка остановки playback {playback_id}: {e}")
         
         # КРТЧНО: Очищаем все очереди параллельного TTS
         if self.parallel_tts:
