@@ -50,6 +50,9 @@ class ParallelTTSProcessor:
         self.playback_busy: Dict[str, bool] = defaultdict(bool)
         self.tts_tasks: Dict[str, List[asyncio.Task]] = defaultdict(list)
         
+        # ✅ Трекинг активных playback ID для barge-in
+        self.active_playbacks: Dict[str, set] = defaultdict(set)
+        
         # Метрики производительности
         self.performance_metrics: Dict[str, Dict] = defaultdict(dict)
         
@@ -249,6 +252,8 @@ class ParallelTTSProcessor:
             play_time = time.time() - play_start
             
             if playback_id:
+                # ✅ Трекаем активный playback для barge-in
+                self.active_playbacks[channel_id].add(playback_id)
                 logger.info(f"🔊 Played chunk {item['chunk_num']}: {play_time:.2f}s - '{item['text'][:30]}...'")
                 
                 # Ждем завершения воспроизведения (приблизительно 1с аудио = 0.2с TTS)
@@ -292,6 +297,21 @@ class ParallelTTSProcessor:
         Используется при barge-in для полной остановки обработки
         """
         try:
+            # ✅ КРИТИЧНО: Останавливаем ВСЕ активные playback'и на канале!
+            if channel_id in self.active_playbacks:
+                for playback_id in list(self.active_playbacks[channel_id]):
+                    try:
+                        result = await self.ari_client.stop_playback(playback_id)
+                        if result:
+                            logger.info(f"🛑 Stopped active playback: {playback_id}")
+                        else:
+                            logger.warning(f"⚠️ Failed to stop playback: {playback_id}")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Error stopping playback {playback_id}: {e}")
+                
+                # Очищаем список активных playback'ов
+                self.active_playbacks[channel_id].clear()
+            
             # Очищаем очередь воспроизведения
             self.playback_queues[channel_id] = []
             
