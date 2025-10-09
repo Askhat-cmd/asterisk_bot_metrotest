@@ -134,6 +134,21 @@ class OptimizedAsteriskAIHandler:
             ari_client = AsteriskARIClient()
             # ✅ ИСПРАВЛЕНО: Используем уже инициализированный self.grpc_tts
             self.parallel_tts = ParallelTTSProcessor(self.grpc_tts, ari_client)
+            # Колбэк: когда TTS полностью idle, пробуем запустить VAD
+            async def _on_tts_idle(channel_id: str):
+                try:
+                    call_data = self.active_calls.get(channel_id)
+                    if not call_data or call_data.get("is_recording", False):
+                        return
+                    # Повторная проверка занятости перед запуском VAD
+                    active_tts = len(self.parallel_tts.tts_tasks.get(channel_id, []))
+                    queued_chunks = len(self.parallel_tts.playback_queues.get(channel_id, []))
+                    if active_tts == 0 and queued_chunks == 0:
+                        logger.info(f"🎤 Idle detected → запускаем VAD для {channel_id}")
+                        await self.start_user_recording(channel_id)
+                except Exception as e:
+                    logger.debug(f"on_tts_idle error for {channel_id}: {e}")
+            self.parallel_tts.on_tts_idle = _on_tts_idle
             
             # 5. Умная детекция речи
             if self.smart_detection_enabled:

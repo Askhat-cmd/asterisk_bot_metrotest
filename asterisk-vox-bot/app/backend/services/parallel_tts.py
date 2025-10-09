@@ -52,6 +52,8 @@ class ParallelTTSProcessor:
         
         # Метрики производительности
         self.performance_metrics: Dict[str, Dict] = defaultdict(dict)
+        # Опциональный колбэк: вызывается, когда для канала больше нет активных TTS задач и очередь пуста
+        self.on_tts_idle: Optional[Any] = None
         
         logger.info(f"🔄 ParallelTTSProcessor инициализирован с {self.tts_workers} TTS workers")
     
@@ -108,6 +110,14 @@ class ParallelTTSProcessor:
                 self.tts_tasks[channel_id] = [t for t in self.tts_tasks[channel_id] if t is not task]
                 after = len(self.tts_tasks[channel_id])
                 logger.info(f"🧹 TTS task cleanup: {before} → {after} active for {channel_id}")
+
+                # Если канал стал idle (нет активных TTS задач и очередь пуста) — сообщаем верхнему уровню
+                try:
+                    if after == 0 and len(self.playback_queues.get(channel_id, [])) == 0 and not self.playback_busy.get(channel_id, False):
+                        # Небольшая задержка, чтобы исключить гонки с окончанием playback
+                        asyncio.create_task(self._notify_idle(channel_id))
+                except Exception as notify_err:
+                    logger.debug(f"idle notify error for {channel_id}: {notify_err}")
         except Exception as cleanup_error:
             logger.debug(f"⚠️ Cleanup tts task error for {channel_id}: {cleanup_error}")
     
@@ -157,6 +167,21 @@ class ParallelTTSProcessor:
         # Запускаем обработку очереди если не занят
         if not self.playback_busy[channel_id]:
             await self._process_playback_queue(channel_id)
+
+    async def _notify_idle(self, channel_id: str) -> None:
+        """Уведомляет колбэк on_tts_idle, если канал действительно idle после короткой паузы."""
+        try:
+            await asyncio.sleep(0.05)
+            is_idle = (
+                len(self.tts_tasks.get(channel_id, [])) == 0
+                and len(self.playback_queues.get(channel_id, [])) == 0
+                and not self.playback_busy.get(channel_id, False)
+            )
+            if is_idle and self.on_tts_idle is not None:
+                logger.info(f"✅ ParallelTTS idle for {channel_id} — triggering VAD check")
+                await self.on_tts_idle(channel_id)
+        except Exception as e:
+            logger.debug(f"_notify_idle error for {channel_id}: {e}")
     
     async def _process_playback_queue(self, channel_id: str):
         """Последовательно воспроизводит готовые чанки В ПРАВИЛЬНОМ ПОРЯДКЕ"""
