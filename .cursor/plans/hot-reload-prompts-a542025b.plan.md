@@ -1,252 +1,199 @@
 <!-- a542025b-e1a2-4844-9474-370c9770d469 201a36fa-7f87-45b2-b33e-f738d4e1e03e -->
-# Добавление FastAPI в systemd
+# Централизация логирования проекта
 
 ## Цель
 
-Добавить FastAPI (админ-панель) под управление systemd для автозапуска и единообразного управления всеми компонентами проекта.
+Собрать все логи проекта в одну директорию `/var/log/metrotech/` для удобного мониторинга и управления.
 
-## Текущее состояние
+## Текущее состояние логов
 
-- ✅ Asterisk - управляется systemd
-- ✅ Redis - управляется systemd  
-- ✅ Stasis Handler - управляется systemd (`metrotech-bot.service`)
-- ❌ FastAPI - запущен вручную, НЕ перезапускается автоматически
+### Логи внутри проекта:
+
+- `/root/Asterisk_bot/asterisk-vox-bot/bot.log` (425KB) - stasis_handler
+- `/root/Asterisk_bot/asterisk-vox-bot/fastapi.log` (16KB) - FastAPI админ-панель
+- `/root/Asterisk_bot/asterisk-vox-bot/data/logs/app.log` (247KB) - детальные логи FastAPI
+- `/root/Asterisk_bot/asterisk-vox-bot/stasis.log` (8.9KB) - устаревший
+- `/root/Asterisk_bot/asterisk-vox-bot/data/logs/stasis_handler.out` (2.6KB) - устаревший
+
+### Системные логи:
+
+- `/var/log/asterisk/messages.log` (961MB!) - Asterisk PBX
+- `/var/log/redis/redis-server.log` - Redis
+
+## Целевая структура
+
+```
+/var/log/metrotech/
+├── bot.log                    # stasis_handler (симлинк или прямая запись)
+├── fastapi.log                # FastAPI API (симлинк или прямая запись)
+├── asterisk.log               # симлинк на /var/log/asterisk/messages.log
+├── redis.log                  # симлинк на /var/log/redis/redis-server.log
+└── archive/                   # архив старых логов
+    └── 2025-10/
+```
+
+## Преимущества
+
+- ✅ Все логи в одном месте
+- ✅ Легко настроить мониторинг
+- ✅ Удобно для backup
+- ✅ Стандартизированная структура
+- ✅ Не требует изменения кода
+
+## Шаги реализации
+
+### Шаг 1: Создать директорию для централизованных логов
+
+```bash
+sudo mkdir -p /var/log/metrotech/archive
+sudo chown root:root /var/log/metrotech
+sudo chmod 755 /var/log/metrotech
+```
+
+### Шаг 2: Обновить systemd сервисы для записи в новое место
+
+**Обновить `metrotech-bot.service`:**
+
+- Изменить `StandardOutput` и `StandardError` на `/var/log/metrotech/bot.log`
+
+**Обновить `metrotech-fastapi.service`:**
+
+- Изменить `StandardOutput` и `StandardError` на `/var/log/metrotech/fastapi.log`
+
+### Шаг 3: Создать симлинки на системные логи
+
+```bash
+ln -s /var/log/asterisk/messages.log /var/log/metrotech/asterisk.log
+ln -s /var/log/redis/redis-server.log /var/log/metrotech/redis.log
+```
+
+### Шаг 4: Обновить конфигурацию Python логирования (app.log)
+
+Изменить в `main.py`:
+
+```python
+# Было:
+log_file = "data/logs/app.log"
+
+# Станет:
+log_file = "/var/log/metrotech/app-detailed.log"
+```
+
+### Шаг 5: Настроить ротацию логов
+
+Создать файл `/etc/logrotate.d/metrotech`:
+
+```
+/var/log/metrotech/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0644 root root
+    sharedscripts
+    postrotate
+        systemctl reload metrotech-bot metrotech-fastapi > /dev/null 2>&1 || true
+    endscript
+}
+```
+
+### Шаг 6: Перезапустить сервисы с новыми настройками
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart metrotech-bot
+sudo systemctl restart metrotech-fastapi
+```
+
+### Шаг 7: Очистить устаревшие логи
+
+```bash
+# Переместить устаревшие логи в архив
+mkdir -p /var/log/metrotech/archive/old-logs
+mv /root/Asterisk_bot/asterisk-vox-bot/stasis.log /var/log/metrotech/archive/old-logs/
+mv /root/Asterisk_bot/asterisk-vox-bot/data/logs/stasis_handler.out /var/log/metrotech/archive/old-logs/
+```
+
+### Шаг 8: Обновить README с новыми путями логов
+
+## Проверка после внедрения
+
+```bash
+# Проверить структуру
+ls -la /var/log/metrotech/
+
+# Проверить, что логи пишутся
+tail -f /var/log/metrotech/bot.log
+tail -f /var/log/metrotech/fastapi.log
+
+# Проверить симлинки
+ls -la /var/log/metrotech/*.log
+
+# Проверить работу сервисов
+sudo systemctl status metrotech-bot metrotech-fastapi
+```
+
+## Команды мониторинга после централизации
+
+```bash
+# Просмотр всех логов из одного места
+cd /var/log/metrotech/
+
+# Мониторинг всех логов одновременно
+tail -f *.log
+
+# Поиск по всем логам
+grep "ERROR" /var/log/metrotech/*.log
+
+# Размеры логов
+du -h /var/log/metrotech/
+
+# Логи за последний час
+find /var/log/metrotech/ -name "*.log" -mmin -60
+```
 
 ## Риски и меры безопасности
 
 ### 🛡️ Что НЕ будет затронуто:
 
 - ✅ Asterisk продолжит работать
-- ✅ Stasis Handler продолжит работать
 - ✅ Redis продолжит работать
 - ✅ Текущие звонки НЕ прервутся
-- ✅ Существующий процесс FastAPI продолжит работать до его остановки
+- ✅ Старые логи останутся доступны
 
-### 🔄 Что будет изменено:
+### 🔄 Что изменится:
 
-- Создан новый файл `/etc/systemd/system/metrotech-fastapi.service`
-- FastAPI будет остановлен и перезапущен через systemd
-- После этого FastAPI будет автоматически запускаться при перезагрузке
+- Новые логи будут писаться в `/var/log/metrotech/`
+- Systemd сервисы перезапустятся (5-10 секунд простоя админ-панели)
+- Старые файлы логов переместятся в архив
 
 ### ↩️ Возможность отката:
 
-Если что-то пойдет не так, можно быстро вернуться:
+Если что-то пойдет не так:
 
 ```bash
-# Остановить новый сервис
-sudo systemctl stop metrotech-fastapi
-# Запустить FastAPI вручную как раньше
-cd /root/Asterisk_bot/asterisk-vox-bot && source venv/bin/activate && nohup python app/backend/main.py > /dev/null 2>&1 &
-```
-
-## Шаги реализации
-
-### Шаг 1: Создать резервную копию (на всякий случай)
-
-Создадим backup текущего состояния для возможности быстрого отката:
-
-```bash
-cd /root/Asterisk_bot
-tar -czf project_backup/fastapi_systemd_backup_$(date +%Y%m%d_%H%M%S).tar.gz \
-  /etc/systemd/system/metrotech-bot.service \
-  asterisk-vox-bot/.env 2>/dev/null || true
-```
-
-### Шаг 2: Проверить текущий процесс FastAPI
-
-Запишем PID текущего процесса, чтобы знать, что останавливать:
-
-```bash
-ps aux | grep "python app/backend/main.py" | grep -v grep
-```
-
-### Шаг 3: Создать systemd unit файл для FastAPI
-
-Файл: `/etc/systemd/system/metrotech-fastapi.service`
-
-```ini
-[Unit]
-Description=Metrotech FastAPI Admin Panel & API
-After=network.target redis-server.service
-Wants=redis-server.service
-
-[Service]
-Type=simple
-User=root
-WorkingDirectory=/root/Asterisk_bot/asterisk-vox-bot
-Environment="PATH=/root/Asterisk_bot/asterisk-vox-bot/venv/bin:/usr/local/bin:/usr/bin:/bin"
-Environment="PYTHONDONTWRITEBYTECODE=1"
-Environment="PYTHONUNBUFFERED=1"
-ExecStart=/bin/bash -lc 'source /root/Asterisk_bot/asterisk-vox-bot/venv/bin/activate && exec python /root/Asterisk_bot/asterisk-vox-bot/app/backend/main.py'
-Restart=always
-RestartSec=10
-StandardOutput=append:/root/Asterisk_bot/asterisk-vox-bot/fastapi.log
-StandardError=append:/root/Asterisk_bot/asterisk-vox-bot/fastapi.log
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Особенности конфигурации:**
-
-- `After=redis-server.service` - запуск после Redis (FastAPI нужен Redis для кеширования)
-- `Restart=always` - автоматический перезапуск при сбое
-- `RestartSec=10` - пауза 10 секунд перед перезапуском
-- Отдельный лог файл `fastapi.log` (не путается с `bot.log`)
-
-### Шаг 4: Перезагрузить конфигурацию systemd
-
-```bash
+# Откатить systemd конфигурацию
+sudo cp /var/log/metrotech/archive/metrotech-bot.service.backup /etc/systemd/system/metrotech-bot.service
+sudo cp /var/log/metrotech/archive/metrotech-fastapi.service.backup /etc/systemd/system/metrotech-fastapi.service
 sudo systemctl daemon-reload
+sudo systemctl restart metrotech-bot metrotech-fastapi
 ```
 
-**Безопасно:** Только перечитывает конфигурацию, ничего не останавливает.
+## Время выполнения
 
-### Шаг 5: Включить автозапуск
-
-```bash
-sudo systemctl enable metrotech-fastapi
-```
-
-**Безопасно:** Только добавляет симлинк для автозапуска, не запускает сервис.
-
-### Шаг 6: Остановить старый процесс FastAPI
-
-```bash
-# Найти PID процесса main.py
-PID=$(ps aux | grep "python app/backend/main.py" | grep -v grep | awk '{print $2}')
-# Мягко остановить (SIGTERM)
-kill $PID
-# Подождать 2 секунды
-sleep 2
-```
-
-**Влияние:** Админ-панель будет недоступна 2-5 секунд. Звонки продолжат работать.
-
-### Шаг 7: Запустить FastAPI через systemd
-
-```bash
-sudo systemctl start metrotech-fastapi
-```
-
-### Шаг 8: Проверить статус
-
-```bash
-sudo systemctl status metrotech-fastapi --no-pager
-```
-
-### Шаг 9: Проверить логи горячей перезагрузки
-
-```bash
-tail -50 /root/Asterisk_bot/asterisk-vox-bot/fastapi.log | grep -E "(Горячая|мониторинг|Агент)"
-```
-
-Должны увидеть:
-
-```
-🔥 Горячая перезагрузка промптов включена (интервал: 5.0с)
-🔍 Запущен мониторинг файла промптов: config/prompts.json
-```
-
-### Шаг 10: Проверить доступность админ-панели
-
-```bash
-curl -s http://localhost:8000/api/prompts | head -20
-```
-
-Должен вернуть JSON с промптами.
-
-## Проверка после внедрения
-
-### Тест 1: Все сервисы запущены
-
-```bash
-sudo systemctl status asterisk metrotech-bot metrotech-fastapi redis-server --no-pager
-```
-
-Все должны быть `active (running)`.
-
-### Тест 2: Админ-панель доступна
-
-Открыть в браузере админ-панель и проверить:
-
-- Логи звонков отображаются
-- Можно изменить промпты
-- Можно загрузить базу знаний
-
-### Тест 3: Горячая перезагрузка работает
-
-1. Изменить промпт через админ-панель
-2. Подождать 5-10 секунд
-3. Проверить логи: `tail -f /root/Asterisk_bot/asterisk-vox-bot/bot.log | grep "Промпты обновлены"`
-
-### Тест 4: Звонки работают
-
-Позвонить боту и убедиться, что он отвечает.
-
-## Итоговые команды управления
-
-После внедрения все сервисы будут управляться единообразно:
-
-```bash
-# Статус всех компонентов
-sudo systemctl status asterisk redis-server metrotech-bot metrotech-fastapi
-
-# Перезапуск отдельного компонента
-sudo systemctl restart metrotech-fastapi
-
-# Перезапуск всего проекта (если нужно)
-sudo systemctl restart asterisk redis-server metrotech-bot metrotech-fastapi
-
-# Логи конкретного сервиса
-sudo journalctl -u metrotech-fastapi -f
-# или
-tail -f /root/Asterisk_bot/asterisk-vox-bot/fastapi.log
-
-# Остановка/запуск
-sudo systemctl stop metrotech-fastapi
-sudo systemctl start metrotech-fastapi
-```
-
-## План отката (если что-то пошло не так)
-
-Если возникнут проблемы:
-
-```bash
-# 1. Остановить новый сервис
-sudo systemctl stop metrotech-fastapi
-sudo systemctl disable metrotech-fastapi
-
-# 2. Удалить unit файл
-sudo rm /etc/systemd/system/metrotech-fastapi.service
-sudo systemctl daemon-reload
-
-# 3. Запустить FastAPI вручную как раньше
-cd /root/Asterisk_bot/asterisk-vox-bot
-source venv/bin/activate
-nohup python app/backend/main.py > /dev/null 2>&1 &
-
-# 4. Проверить, что FastAPI работает
-ps aux | grep "main.py"
-curl http://localhost:8000/api/prompts
-```
-
-## Преимущества после внедрения
-
-1. ✅ **Автозапуск** - FastAPI запустится автоматически после перезагрузки сервера
-2. ✅ **Автоперезапуск** - при сбое FastAPI перезапустится автоматически через 10 секунд
-3. ✅ **Единообразное управление** - все компоненты через systemctl
-4. ✅ **Отдельные логи** - логи FastAPI в `fastapi.log`, не путаются с логами звонков
-5. ✅ **Горячая перезагрузка** - работает автоматически в обоих процессах
-6. ✅ **Мониторинг** - можно использовать стандартные инструменты systemd для мониторинга
+- Подготовка: 5 минут
+- Реализация: 10 минут
+- Проверка: 5 минут
+- **Общее время: ~20 минут**
 
 ## Время простоя
 
-- **Asterisk:** 0 секунд (не затрагивается)
-- **Stasis Handler:** 0 секунд (не затрагивается)  
-- **Redis:** 0 секунд (не затрагивается)
-- **FastAPI (админ-панель):** 2-5 секунд (время перезапуска)
-- **Звонки:** 0 секунд простоя (продолжают обрабатываться)
+- **Asterisk:** 0 секунд
+- **Redis:** 0 секунд
+- **Stasis Handler (звонки):** 5-10 секунд (перезапуск)
+- **FastAPI (админ-панель):** 5-10 секунд (перезапуск)
 
 ### To-dos
 

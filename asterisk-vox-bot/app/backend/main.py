@@ -30,9 +30,9 @@ load_dotenv()
 
 # --- Конфигурация логирования ---
 # Создаем директорию для логов, если ее нет
-os.makedirs("data/logs", exist_ok=True)
+os.makedirs("/var/log/metrotech", exist_ok=True)
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-log_file = "data/logs/app.log"
+log_file = "/var/log/metrotech/app-detailed.log"
 
 # Настраиваем ротируемый файловый обработчик
 file_handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=5, encoding='utf-8')
