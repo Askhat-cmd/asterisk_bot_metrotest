@@ -1,0 +1,219 @@
+2025-10-10 06:41:35,186 - INFO - --- Инициализация Агента 'Метротест' ---
+2025-10-10 06:41:35,187 - INFO - LLM конфигурация: PRIMARY model='gpt-4o-mini', temperature=0.2
+2025-10-10 06:41:35,455 - INFO - ✅ Redis кеширование включено
+2025-10-10 06:41:35,455 - INFO - Загрузка промптов из файла: 'config/prompts.json'
+2025-10-10 06:41:35,455 - INFO - Инициализация или перезагрузка RAG-цепочки...
+2025-10-10 06:41:35,456 - INFO - Подключение к векторной базе в 'data/chroma/chroma_db_metrotech'...
+2025-10-10 06:41:35,520 - INFO - ✅ Используем кешированные embeddings
+2025-10-10 06:41:35,709 - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-10-10 06:41:35,820 - INFO - Подключение к базе данных успешно.
+2025-10-10 06:41:35,820 - INFO - 🚀 ОПТИМИЗАЦИЯ: Используем простые retriever'ы без history_aware для ускорения
+2025-10-10 06:41:35,826 - INFO - --- RAG-цепочка успешно создана/обновлена ---
+2025-10-10 06:41:35,826 - INFO - 🔥 Pre-warming кеша для 12 популярных вопросов...
+2025-10-10 06:41:35,831 - INFO - ✅ Pre-warming завершен: 0 новых, 12 уже в кеше
+2025-10-10 06:41:35,831 - INFO - 🔥 Горячая перезагрузка промптов включена (интервал: 5.0с)
+2025-10-10 06:41:35,831 - INFO - 🔍 Запущен мониторинг файла промптов: config/prompts.json
+2025-10-10 06:41:35,831 - INFO - --- Агент 'Метротест' успешно инициализирован ---
+2025-10-10 06:41:35,832 - INFO - Агент 'Метротест' успешно инициализирован.
+INFO:     Started server process [1293662]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs-ui/ HTTP/1.1" 304 Not Modified
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs-ui/ HTTP/1.1" 304 Not Modified
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54996 - "GET /api/prompts HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56293 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56400 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56400 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56400 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56400 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56400 - "GET /api/prompts HTTP/1.1" 200 OK
+/root/Asterisk_bot/asterisk-vox-bot/app/backend/main.py:223: PydanticDeprecatedSince20: The `dict` method is deprecated; use `model_dump` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/
+  data = payload.dict()
+2025-10-10 06:45:13,495 - INFO - Загрузка промптов из файла: 'config/prompts.json'
+2025-10-10 06:45:13,496 - INFO - 📝 Промпты обновлены в памяти агента
+INFO:     77.94.103.15:56406 - "POST /api/prompts HTTP/1.1" 200 OK
+2025-10-10 06:45:15,841 - INFO - 🔄 Обнаружено изменение файла промптов, перезагружаем...
+2025-10-10 06:45:15,842 - INFO - Загрузка промптов из файла: 'config/prompts.json'
+2025-10-10 06:45:15,843 - INFO - ✅ Промпты успешно перезагружены из файла
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56409 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56436 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56562 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56562 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56562 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56581 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56688 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56716 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56716 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56716 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56716 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56716 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56716 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56716 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56728 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56728 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56740 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56798 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56816 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56829 - "GET /logs HTTP/1.1" 200 OK
+INFO:     77.94.103.15:56840 - "GET /logs HTTP/1.1" 200 OK
+INFO:     151.115.98.4:17315 - "GET /logs HTTP/1.1" 200 OK
+INFO:     151.115.98.4:47057 - "GET /logs HTTP/1.1" 200 OK
+INFO:     151.115.98.4:60695 - "GET /logs HTTP/1.1" 200 OK
+INFO:     151.115.98.4:26925 - "GET /logs HTTP/1.1" 200 OK
+INFO:     151.115.98.4:58563 - "GET /logs HTTP/1.1" 200 OK
+INFO:     151.115.98.4:63783 - "GET /logs HTTP/1.1" 200 OK
+INFO:     151.115.98.4:2591 - "GET /logs HTTP/1.1" 200 OK
