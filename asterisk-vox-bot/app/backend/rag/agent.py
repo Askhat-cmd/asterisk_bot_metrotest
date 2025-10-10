@@ -12,6 +12,7 @@ import os
 import redis
 import hashlib
 import time
+import threading
 from typing import List
 
 class CachedOpenAIEmbeddings(OpenAIEmbeddings):
@@ -129,6 +130,19 @@ class Agent:
         
         # 🚀 ОПТИМИЗАЦИЯ: Pre-warm кеш для популярных вопросов
         self._prewarm_embedding_cache()
+        
+        # 🔥 Горячая перезагрузка промптов (для кросс-процессной синхронизации)
+        self.prompts_file_path = os.getenv("PROMPTS_FILE_PATH")
+        self._prompts_mtime = self._get_file_mtime(self.prompts_file_path) if self.prompts_file_path else -1.0
+        self._hot_reload_enabled = os.getenv("PROMPTS_HOT_RELOAD", "true").lower() == "true"
+        self._reload_interval = float(os.getenv("PROMPTS_RELOAD_INTERVAL_SEC", "5"))
+
+        if self._hot_reload_enabled and self.prompts_file_path:
+            logger.info(f"🔥 Горячая перезагрузка промптов включена (интервал: {self._reload_interval}с)")
+            reload_thread = threading.Thread(target=self._watch_prompts_file, daemon=True, name="PromptsWatcher")
+            reload_thread.start()
+        else:
+            logger.info("ℹ️  Горячая перезагрузка промптов отключена")
         
         logger.info("--- Агент 'Метротест' успешно инициализирован ---")
 
@@ -349,7 +363,7 @@ class Agent:
         """Перезагружает промпты, векторную базу данных и RAG-цепочку."""
         logger.info("🔃 Получена команда на перезагрузку агента...")
         try:
-            self.prompts = self.load_prompts()
+            self.reload_prompts()  # используем новый метод вместо прямого load_prompts()
             # Обновим конфигурацию моделей
             self.llm = self._create_llm_from_env(primary=True)
             self._initialize_rag_chain()
@@ -598,3 +612,54 @@ class Agent:
                 "kb": self.last_kb,
                 "fallback": True
             }
+
+    def _get_file_mtime(self, file_path: str) -> float:
+        """Получает время последней модификации файла."""
+        try:
+            return os.path.getmtime(file_path)
+        except Exception as e:
+            logger.debug(f"Не удалось получить mtime для {file_path}: {e}")
+            return -1.0
+
+    def _watch_prompts_file(self):
+        """
+        Фоновый поток: следит за изменениями файла промптов.
+        При обнаружении изменений вызывает reload_prompts().
+        """
+        logger.info(f"🔍 Запущен мониторинг файла промптов: {self.prompts_file_path}")
+        
+        while True:
+            try:
+                time.sleep(self._reload_interval)
+                
+                current_mtime = self._get_file_mtime(self.prompts_file_path)
+                
+                if current_mtime > 0 and current_mtime != self._prompts_mtime:
+                    logger.info(f"🔄 Обнаружено изменение файла промптов, перезагружаем...")
+                    self.reload_prompts()
+                    self._prompts_mtime = current_mtime
+                    logger.info("✅ Промпты успешно перезагружены из файла")
+                    
+            except Exception as e:
+                logger.error(f"❌ Ошибка в потоке мониторинга промптов: {e}", exc_info=True)
+
+    def reload_prompts(self):
+        """
+        Явная перезагрузка только промптов без полной перезагрузки агента.
+        Вызывается из фонового потока или FastAPI.
+        """
+        try:
+            old_prompts = self.prompts.copy() if self.prompts else {}
+            self.prompts = self.load_prompts()
+            
+            # Проверяем, действительно ли промпты изменились
+            if old_prompts != self.prompts:
+                logger.info("📝 Промпты обновлены в памяти агента")
+                return True
+            else:
+                logger.debug("ℹ️  Промпты не изменились")
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Ошибка при перезагрузке промптов: {e}", exc_info=True)
+            return False

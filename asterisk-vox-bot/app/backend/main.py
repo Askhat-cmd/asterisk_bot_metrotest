@@ -4,7 +4,7 @@
 - API для просмотра логов
 - Статика для UI логов
 """
-import os, logging, uuid, json, asyncio, io, shutil, time, re
+import os, logging, uuid, json, asyncio, io, shutil, time, re, tempfile
 from logging.handlers import RotatingFileHandler
 from datetime import datetime, timezone
 from typing import Dict, Any
@@ -220,13 +220,31 @@ async def update_prompts(payload: PromptsUpdatePayload): # NEW: Использу
     if not prompts_file:
         raise HTTPException(status_code=500, detail="Переменная окружения PROMPTS_FILE_PATH не установлена.")
     try:
-        # Pydantic автоматически преобразует модель в словарь
-        with open(prompts_file, 'w', encoding='utf-8') as f:
-            json.dump(payload.dict(), f, ensure_ascii=False, indent=2)
-
-        # Перезагружаем агента, чтобы он подхватил новые промпты
-        if agent and hasattr(agent, 'reload'):
-            agent.reload()
+        data = payload.dict()
+        
+        # Атомарная запись: temp file + rename
+        dir_path = os.path.dirname(prompts_file) or "."
+        os.makedirs(dir_path, exist_ok=True)
+        
+        with tempfile.NamedTemporaryFile(
+            mode='w', 
+            delete=False, 
+            dir=dir_path, 
+            prefix=".prompts_", 
+            suffix=".tmp", 
+            encoding='utf-8'
+        ) as tf:
+            json.dump(data, tf, ensure_ascii=False, indent=2)
+            tf.flush()
+            os.fsync(tf.fileno())
+            tmp_path = tf.name
+        
+        # Атомарный rename
+        os.replace(tmp_path, prompts_file)
+        
+        # Локальный агент FastAPI может перезагрузиться немедленно
+        if agent and hasattr(agent, 'reload_prompts'):
+            agent.reload_prompts()
 
         return JSONResponse(content={"message": "Промпты успешно обновлены."})
     except Exception as e:
