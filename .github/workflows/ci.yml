@@ -1,0 +1,40 @@
+name: Tests and Quality Checks
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Run tests with coverage
+        run: |
+          pytest -v --maxfail=1 --disable-warnings --cov=app --cov=asterisk-vox-bot --cov-report=term-missing
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 asterisk-vox-bot tests || true
+
+      - name: Security scan with bandit
+        run: |
+          pip install bandit
+          bandit -r asterisk-vox-bot -ll || true
