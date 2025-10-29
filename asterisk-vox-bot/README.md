@@ -1,4 +1,5 @@
 # 📞 Голосовой AI-ассистент "Метротэст"
+![Tests](https://github.com/Askhat-cmd/asterisk_bot_metrotest/actions/workflows/tests.yml/badge.svg)
 
 > 📅 **Актуально на**: 15.10.2025  
 > 🚀 **Статус**: ✅ Защищен, оптимизирован и работает стабильно  

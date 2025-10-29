@@ -1,0 +1,38 @@
+name: Scaffold tests (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  scaffold:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Create test branch
+        run: |
+          BRANCH="ci-autotest"
+          git checkout -b "$BRANCH"
+          mkdir -p tests
+          echo "def test_auto(): assert 2+2==4" > tests/test_auto.py
+          git add .
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          git commit -m "Auto-create basic test"
+          git push "https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:$BRANCH
+
+      - name: Open PR
+        run: |
+          TITLE="Autotest PR"
+          BODY="Создан автоматически: базовый тест pytest"
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d "{\"title\":\"$TITLE\",\"head\":\"ci-autotest\",\"base\":\"main\",\"body\":\"$BODY\"}"

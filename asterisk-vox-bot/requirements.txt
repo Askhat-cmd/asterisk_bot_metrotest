@@ -10,4 +10,8 @@ langchain-text-splitters
 tiktoken
 langchain-community
 python-multipart
+aiohttp
+aiofiles
 aiosqlite
+pytest
+pytest-asyncio
