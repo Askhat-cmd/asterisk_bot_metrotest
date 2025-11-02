@@ -25,8 +25,25 @@ from app.backend.utils.text_normalizer import normalize as normalize_text
 from app.backend.services.log_storage import insert_log, query_logs, to_csv, delete_all_logs
 from scripts.create_embeddings import recreate_embeddings
 
+# Импортируем централизованные настройки
+from app.backend.config.settings import settings
+
 # --- Инициализация ---
 load_dotenv()
+
+# Загружаем и валидируем настройки при старте приложения
+logger_init = logging.getLogger(__name__)
+try:
+    logger_init.info("🔧 Загрузка централизованных настроек...")
+    logger_init.info(f"✅ Настройки загружены успешно:")
+    logger_init.info(f"  - ARI URL: {settings.ari_http_url}")
+    logger_init.info(f"  - ARI App: {settings.ari_app_name}")
+    logger_init.info(f"  - Redis URL: {settings.redis_url}")
+    logger_init.info(f"  - Speech end timeout: {settings.speech_end_timeout}s")
+    logger_init.info(f"  - Max silence duration: {settings.max_silence_duration}s")
+except Exception as e:
+    logger_init.error(f"❌ Ошибка загрузки настроек: {e}")
+    raise
 
 # --- Конфигурация логирования ---
 # Создаем директорию для логов, если ее нет
