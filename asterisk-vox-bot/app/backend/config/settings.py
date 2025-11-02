@@ -57,6 +57,56 @@ class Settings(BaseSettings):
         le=30.0,
         description="Максимальная длительность тишины в секундах перед автоматическим завершением"
     )
+    barge_in_guard_ms: int = Field(
+        default=400,
+        ge=0,
+        le=5000,
+        description="Защитный интервал в миллисекундах для предотвращения прерывания речи бота"
+    )
+    input_debounce_ms: int = Field(
+        default=1200,
+        ge=0,
+        le=5000,
+        description="Интервал подавления дребезга входящих сигналов в миллисекундах"
+    )
+    
+    # ==========================================
+    # НАСТРОЙКИ ДЕТЕКЦИИ РЕЧИ
+    # ==========================================
+    speech_silence_timeout: float = Field(
+        default=1.2,
+        ge=0.1,
+        le=10.0,
+        description="Таймаут тишины для определения конца речи в секундах"
+    )
+    speech_min_duration: float = Field(
+        default=0.5,
+        ge=0.1,
+        le=5.0,
+        description="Минимальная длительность речи в секундах для обработки"
+    )
+    speech_max_recording_time: float = Field(
+        default=15.0,
+        ge=1.0,
+        le=60.0,
+        description="Максимальное время записи речи в секундах"
+    )
+    speech_detection_enabled: bool = Field(
+        default=False,
+        description="Включить умную детекцию речи"
+    )
+    speech_debug_logging: bool = Field(
+        default=False,
+        description="Включить отладочное логирование детекции речи"
+    )
+    
+    # ==========================================
+    # НАСТРОЙКИ VAD (Voice Activity Detection)
+    # ==========================================
+    vad_enabled: bool = Field(
+        default=False,
+        description="Включить VAD для уменьшения паузы после речи"
+    )
     
     # ==========================================
     # ВАЛИДАТОРЫ
