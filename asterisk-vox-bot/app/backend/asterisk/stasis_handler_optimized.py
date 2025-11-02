@@ -1,4 +1,4 @@
-﻿
+
 #!/usr/bin/env python3
 """
 Оптимизированный StasisHandler с интеграцией всех компонентов оптимизации
@@ -28,6 +28,7 @@ from app.backend.services.yandex_tts_service import get_yandex_tts_service
 from app.backend.services.asr_service import get_asr_service
 from app.backend.utils.text_normalizer import normalize as normalize_text
 from app.backend.services.log_storage import insert_log
+from app.backend.config.settings import settings
 
 # НОВЫЕ КОМПОНЕНТЫ ОПТМЗАЦ
 from app.backend.services.yandex_grpc_tts import YandexGrpcTTS
@@ -53,7 +54,10 @@ class OptimizedAsteriskAIHandler:
     """
     
     def __init__(self):
-        self.ws_url = "ws://localhost:8088/ari/events?app=asterisk-bot&api_key=asterisk:asterisk123"
+        # Формируем WebSocket URL из настроек
+        ws_protocol = "wss" if settings.ari_http_url.startswith("https") else "ws"
+        ws_host = settings.ari_http_url.replace("http://", "").replace("https://", "")
+        self.ws_url = f"{ws_protocol}://{ws_host}/ari/events?app={settings.ari_app_name}&api_key={settings.ari_username}:{settings.ari_password}"
         
         # нициализируем AI Agent
         try:
@@ -81,29 +85,29 @@ class OptimizedAsteriskAIHandler:
         # НОВЫЕ КОМПОНЕНТЫ УМНОЙ ДЕТЕКЦ РЕЧ
         self.speech_detector = None
         self.speech_filter = None
-        self.smart_detection_enabled = os.getenv("SPEECH_DETECTION_ENABLED", "false").lower() == "true"
-        self.speech_debug_logging = os.getenv("SPEECH_DEBUG_LOGGING", "false").lower() == "true"
+        self.smart_detection_enabled = settings.speech_detection_enabled
+        self.speech_debug_logging = settings.speech_debug_logging
         
         # ✅ ОТСЛЕЖИВАНИЕ PLAYBACK СОБЫТИЙ (для filler оптимизации)
         self.playback_events = {}
         
         # VAD СЕРВС ДЛЯ УМЕНЬШЕНЯ ПАУЗЫ
         self.vad_service = None
-        self.vad_enabled = os.getenv("VAD_ENABLED", "false").lower() == "true"
+        self.vad_enabled = settings.vad_enabled
         
         # Активные звонки с оптимизированными данными
         self.active_calls = {}
         self.bridge_to_channel = {}
 
         # Константы оптимизации
-        self.SPEECH_END_TIMEOUT = 0.2
-        self.BARGE_IN_GUARD_MS = int(os.getenv("BARGE_IN_GUARD_MS", "400"))  # Увеличено для Asterisk
-        self.INPUT_DEBOUNCE_MS = int(os.getenv("INPUT_DEBOUNCE_MS", "1200"))
+        self.SPEECH_END_TIMEOUT = settings.speech_end_timeout
+        self.BARGE_IN_GUARD_MS = settings.barge_in_guard_ms  # Увеличено для Asterisk
+        self.INPUT_DEBOUNCE_MS = settings.input_debounce_ms
         
         # Конфигурация умной детекции речи
-        self.silence_timeout = float(os.getenv("SPEECH_SILENCE_TIMEOUT", "1.2"))
-        self.min_speech_duration = float(os.getenv("SPEECH_MIN_DURATION", "0.5"))
-        self.max_recording_time = float(os.getenv("SPEECH_MAX_RECORDING_TIME", "15.0"))
+        self.silence_timeout = settings.speech_silence_timeout
+        self.min_speech_duration = settings.speech_min_duration
+        self.max_recording_time = settings.speech_max_recording_time
         
         # Метрики производительности
         self.performance_metrics = {}
