@@ -1,5 +1,4 @@
-
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Оптимизированный StasisHandler с интеграцией всех компонентов оптимизации
 Цель: 1.1 секунды от ASR до первого звука
@@ -28,7 +27,6 @@ from app.backend.services.yandex_tts_service import get_yandex_tts_service
 from app.backend.services.asr_service import get_asr_service
 from app.backend.utils.text_normalizer import normalize as normalize_text
 from app.backend.services.log_storage import insert_log
-from app.backend.config.settings import settings
 
 # НОВЫЕ КОМПОНЕНТЫ ОПТМЗАЦ
 from app.backend.services.yandex_grpc_tts import YandexGrpcTTS
@@ -54,10 +52,8 @@ class OptimizedAsteriskAIHandler:
     """
     
     def __init__(self):
-        # Формируем WebSocket URL из настроек
-        ws_protocol = "wss" if settings.ari_http_url.startswith("https") else "ws"
-        ws_host = settings.ari_http_url.replace("http://", "").replace("https://", "")
-        self.ws_url = f"{ws_protocol}://{ws_host}/ari/events?app={settings.ari_app_name}&api_key={settings.ari_username}:{settings.ari_password}"
+        # ✅ ИСПРАВЛЕНО: Добавлен subscribeAllEvents=true для получения ChannelTalkingStarted
+        self.ws_url = "ws://localhost:8088/ari/events?app=asterisk-bot&api_key=asterisk:asterisk123&subscribeAllEvents=true"
         
         # нициализируем AI Agent
         try:
@@ -85,29 +81,29 @@ class OptimizedAsteriskAIHandler:
         # НОВЫЕ КОМПОНЕНТЫ УМНОЙ ДЕТЕКЦ РЕЧ
         self.speech_detector = None
         self.speech_filter = None
-        self.smart_detection_enabled = settings.speech_detection_enabled
-        self.speech_debug_logging = settings.speech_debug_logging
+        self.smart_detection_enabled = os.getenv("SPEECH_DETECTION_ENABLED", "false").lower() == "true"
+        self.speech_debug_logging = os.getenv("SPEECH_DEBUG_LOGGING", "false").lower() == "true"
         
         # ✅ ОТСЛЕЖИВАНИЕ PLAYBACK СОБЫТИЙ (для filler оптимизации)
         self.playback_events = {}
         
         # VAD СЕРВС ДЛЯ УМЕНЬШЕНЯ ПАУЗЫ
         self.vad_service = None
-        self.vad_enabled = settings.vad_enabled
+        self.vad_enabled = os.getenv("VAD_ENABLED", "false").lower() == "true"
         
         # Активные звонки с оптимизированными данными
         self.active_calls = {}
         self.bridge_to_channel = {}
 
         # Константы оптимизации
-        self.SPEECH_END_TIMEOUT = settings.speech_end_timeout
-        self.BARGE_IN_GUARD_MS = settings.barge_in_guard_ms  # Увеличено для Asterisk
-        self.INPUT_DEBOUNCE_MS = settings.input_debounce_ms
+        self.SPEECH_END_TIMEOUT = 0.2
+        self.BARGE_IN_GUARD_MS = int(os.getenv("BARGE_IN_GUARD_MS", "400"))  # Увеличено для Asterisk
+        self.INPUT_DEBOUNCE_MS = int(os.getenv("INPUT_DEBOUNCE_MS", "1200"))
         
         # Конфигурация умной детекции речи
-        self.silence_timeout = settings.speech_silence_timeout
-        self.min_speech_duration = settings.speech_min_duration
-        self.max_recording_time = settings.speech_max_recording_time
+        self.silence_timeout = float(os.getenv("SPEECH_SILENCE_TIMEOUT", "1.2"))
+        self.min_speech_duration = float(os.getenv("SPEECH_MIN_DURATION", "0.5"))
+        self.max_recording_time = float(os.getenv("SPEECH_MAX_RECORDING_TIME", "15.0"))
         
         # Метрики производительности
         self.performance_metrics = {}
@@ -115,7 +111,17 @@ class OptimizedAsteriskAIHandler:
         # Мониторинг состояния каналов
         self.channel_monitor_task = None
         
-        logger.info("🚀 OptimizedAsteriskAIHandler инициализирован")
+        # Таймауты звонка и мониторинга каналов (из .env)
+        self.call_inactivity_timeout = int(os.getenv("CALL_INACTIVITY_TIMEOUT", "180"))
+        self.channel_monitor_interval = int(os.getenv("CHANNEL_MONITOR_INTERVAL", "60"))
+        
+        # ✅ НОВЫЕ ПАРАМЕТРЫ: Мягкое окно и Barge-in
+        self.use_soft_input = os.getenv("USE_SOFT_WINDOW_INPUT", "true").lower() == "true"
+        self.barge_in_enabled = os.getenv("BARGE_IN_ENABLED", "true").lower() == "true"
+        self.barge_in_min_size = int(os.getenv("BARGE_IN_MIN_FILE_SIZE", "8000"))
+        self.barge_in_silence = float(os.getenv("BARGE_IN_SILENCE_TIMEOUT", "2.0"))
+        
+        logger.info(f"🚀 OptimizedAsteriskAIHandler инициализирован (soft_window={self.use_soft_input}, barge_in={self.barge_in_enabled})")
     
     async def initialize_optimization_services(self):
         """нициализация всех сервисов оптимизации"""
@@ -148,6 +154,12 @@ class OptimizedAsteriskAIHandler:
                     active_tts = len(self.parallel_tts.tts_tasks.get(channel_id, []))
                     queued_chunks = len(self.parallel_tts.playback_queues.get(channel_id, []))
                     if active_tts == 0 and queued_chunks == 0:
+                        # ✅ ЗАЩИТА: Проверяем блокировку после barge-in
+                        call_data = self.active_calls.get(channel_id)
+                        if call_data and call_data.get("block_idle_recording_until", 0) > time.time():
+                            logger.debug(f"🔇 [IDLE] Запуск записи заблокирован после barge-in для {channel_id}")
+                            return
+                        
                         logger.info(f"🎤 Idle detected → запускаем VAD для {channel_id}")
                         await self.start_user_recording(channel_id)
                 except Exception as e:
@@ -244,20 +256,35 @@ class OptimizedAsteriskAIHandler:
             "asr_complete_time": None,
             "first_chunk_time": None,
             "first_audio_time": None,
-            "user_interrupted": False
+            "user_interrupted": False,
+            
+            # ✅ ЭТАП 4.1: Счетчик playback для защиты от ложных бардж-инов
+            "playback_count": 0
         }
         
         # Канал уже принят в dialplan
         async with AsteriskARIClient() as ari:
             logger.info(f"✅ Звонок уже принят в dialplan: {channel_id}")
             
-            # 🎯 КРТЧЕСКОЕ СПРАВЛЕНЕ: Принудительно отвечаем на канал для ARI playback
+            # 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Принудительно отвечаем на канал для ARI playback
             try:
                 await ari.answer_channel(channel_id)
                 logger.info(f"✅ Канал {channel_id} отвечен для ARI playback")
                 
                 # Небольшая задержка для стабилизации канала
                 await asyncio.sleep(0.1)
+                
+                # ✅ ЭТАП 4.1: Включаем talking detection через ARI API
+                # Пробуем несколько вариантов имени переменной для совместимости
+                talking_enabled = False
+                for var_name in ["TALKING_DETECTION", "CHANNEL(talking)", "DETECTSPEECH"]:
+                    if await ari.set_channel_variable(channel_id, var_name, "on"):
+                        logger.info(f"✅ Talking detection включен для {channel_id} через переменную {var_name}")
+                        talking_enabled = True
+                        break
+                
+                if not talking_enabled:
+                    logger.warning(f"⚠️ Не удалось включить talking detection для {channel_id} через ARI API")
                 
             except Exception as e:
                 logger.error(f"❌ Ошибка ответа на канал {channel_id}: {e}")
@@ -322,11 +349,17 @@ class OptimizedAsteriskAIHandler:
             # ЭТАП 1.2: Проверка размера аудио файла перед ASR
             if not os.path.exists(audio_path):
                 logger.warning(f"⚠️ Аудио файл не найден: {audio_path}")
+                # ✅ КРИТИЧНО: Сбрасываем флаг при раннем return
+                if channel_id in self.active_calls:
+                    self.active_calls[channel_id]["processing_speech"] = False
                 return
                 
             file_size = os.path.getsize(audio_path)
             if file_size < 1000:  # Минимальный размер 1KB
                 logger.warning(f"⚠️ Аудио файл слишком короткий: {file_size} bytes, пропускаем ASR")
+                # ✅ КРИТИЧНО: Сбрасываем флаг при раннем return
+                if channel_id in self.active_calls:
+                    self.active_calls[channel_id]["processing_speech"] = False
                 return
                 
             logger.info(f"✅ Аудио файл проверен: {file_size} bytes")
@@ -350,6 +383,9 @@ class OptimizedAsteriskAIHandler:
                 if not normalized_text or not normalized_text.strip():
                     logger.warning(f"⚠️ ASR вернул пустой результат, пропускаем обработку")
                     # Не завершаем звонок при пустом ASR - возможно пользователь еще говорит
+                    # ✅ КРИТИЧНО: Сбрасываем флаг при раннем return
+                    if channel_id in self.active_calls:
+                        self.active_calls[channel_id]["processing_speech"] = False
                     return
 
                 # 🧠 УМНАЯ ФЛЬТРАЦЯ: Проверяем информативность речи
@@ -373,6 +409,9 @@ class OptimizedAsteriskAIHandler:
                         
                         # Запускаем новую запись после неинформативной фразы
                         await asyncio.sleep(0.5)  # Небольшая пауза
+                        # ✅ КРИТИЧНО: Сбрасываем флаг ПЕРЕД запуском новой записи
+                        if channel_id in self.active_calls:
+                            self.active_calls[channel_id]["processing_speech"] = False
                         await self.start_user_recording(channel_id)
                         return
                     else:
@@ -952,7 +991,12 @@ class OptimizedAsteriskAIHandler:
             return False
 
     async def stop_tts_on_barge_in_optimized(self, channel_id: str, event_name: str):
-        """ОПТМЗРОВАННЫЙ barge-in с очисткой всех очередей"""
+        """ОПТМЗРОВАННЫЙ barge-in с очисткой всех очередей и остановкой всех playbacks"""
+        # ✅ НОВОЕ: Проверка флага barge_in_enabled
+        if not self.barge_in_enabled:
+            logger.debug(f"🔇 Barge-in отключен через .env (BARGE_IN_ENABLED=false)")
+            return
+        
         call_data = self.active_calls.get(channel_id)
         if not call_data:
             return
@@ -965,15 +1009,36 @@ class OptimizedAsteriskAIHandler:
             logger.debug(f"🔇 Ignoring barge-in - too early ({since_start}ms)")
             return
         
-        logger.info(f"🚫 [OPTIMIZED BARGE-IN] {event_name} → stopping all TTS processing")
+        logger.info(f"🚫 [BARGE-IN] {event_name} → stop all playbacks & queues (ch={channel_id})")
         
         # Останавливаем текущее воспроизведение
-        if call_data.get("current_playback"):
+        current_pid = call_data.get("current_playback")
+        if current_pid:
             try:
                 async with AsteriskARIClient() as ari:
-                    await ari.stop_playback(call_data["current_playback"])
-            except:
-                pass
+                    await ari.stop_playback(current_pid)
+                logger.info(f"🛑 Stopped current playback: {current_pid}")
+            except Exception as e:
+                logger.debug(f"stop_playback current error: {e}")
+        
+        # Останавливаем все активные проигрывания этого канала из реестра событий
+        try:
+            active_pids = [
+                pid for pid, meta in self.playback_events.items()
+                if meta.get("channel_id") == channel_id and not meta.get("finished")
+            ]
+            if active_pids:
+                async with AsteriskARIClient() as ari:
+                    for pid in active_pids:
+                        try:
+                            ok = await ari.stop_playback(pid)
+                            if ok:
+                                logger.info(f"🛑 Force stopped playback: {pid}")
+                            self.playback_events[pid]["finished"] = True
+                        except Exception as e:
+                            logger.debug(f"stop_playback registry error for {pid}: {e}")
+        except Exception as e:
+            logger.debug(f"barge-in registry iteration error: {e}")
         
         # КРТЧНО: Очищаем все очереди параллельного TTS
         if self.parallel_tts:
@@ -981,7 +1046,19 @@ class OptimizedAsteriskAIHandler:
         
         # Отмечаем прерывание
         call_data["user_interrupted"] = True
+        call_data["is_speaking"] = False
+        
+        logger.info("✅ Barge-in completed — ready for new input")
         call_data["barge_in_time"] = time.time()
+        # Блокируем постановку новых чанков на короткое время (анти-хвост)
+        try:
+            if self.parallel_tts:
+                now = time.time()
+                self.parallel_tts.block_enqueue_until[channel_id] = now + 0.7
+                # Также помечаем barge-in, чтобы текущая очередь мгновенно остановилась
+                self.parallel_tts.barge_in_until[channel_id] = now + 1.0
+        except Exception:
+            pass
         
         logger.info("✅ Optimized barge-in processed - ready for new input")
 
@@ -1033,7 +1110,7 @@ class OptimizedAsteriskAIHandler:
         logger.info(f"📊 Performance metrics for {channel_id}: {metrics}")
 
     async def _start_call_timeout(self, channel_id):
-        """Запускает таймер для автоматического завершения звонка через 30 секунд бездействия"""
+        """Запускает таймер для автоматического завершения звонка по истечении CALL_INACTIVITY_TIMEOUT"""
         try:
             # Отменяем предыдущий таймер если есть
             if channel_id in self.active_calls and "timeout_task" in self.active_calls[channel_id]:
@@ -1043,14 +1120,14 @@ class OptimizedAsteriskAIHandler:
             timeout_task = asyncio.create_task(self._call_timeout_handler(channel_id))
             if channel_id in self.active_calls:
                 self.active_calls[channel_id]["timeout_task"] = timeout_task
-                logger.info(f"⏰ Таймер завершения звонка запущен для {channel_id} (30 сек)")
+                logger.info(f"⏰ Таймер завершения звонка запущен для {channel_id} ({self.call_inactivity_timeout} сек)")
         except Exception as e:
             logger.error(f"❌ Ошибка запуска таймера звонка: {e}")
     
     async def _call_timeout_handler(self, channel_id):
         """Обработчик таймаута звонка"""
         try:
-            await asyncio.sleep(30)  # Ждем 30 секунд
+            await asyncio.sleep(self.call_inactivity_timeout)
             
             if channel_id in self.active_calls:
                 call_data = self.active_calls[channel_id]
@@ -1100,7 +1177,7 @@ class OptimizedAsteriskAIHandler:
         """Мониторинг состояния каналов для детекции разрыва соединения"""
         while True:
             try:
-                await asyncio.sleep(30)  # Проверяем каждые 30 секунд
+                await asyncio.sleep(self.channel_monitor_interval)
                 
                 if not self.active_calls:
                     continue
@@ -1275,6 +1352,8 @@ class OptimizedAsteriskAIHandler:
             await self.handle_playback_started(event)
         elif event_type == 'PlaybackFinished':
             await self.handle_playback_finished(event)
+        elif event_type == 'ChannelTalkingStarted':
+            await self.handle_talking_started(event)
         elif event_type == 'RecordingFinished':
             await self.handle_recording_finished(event)
         elif event_type == 'UserEvent':
@@ -1332,6 +1411,16 @@ class OptimizedAsteriskAIHandler:
         call_data["is_speaking"] = True
         call_data["last_speak_started_at"] = int(time.time() * 1000)
         
+        # ✅ НОВОЕ: Добавляем в реестр playback_events для полного barge-in
+        if playback_id:
+            self.playback_events[playback_id] = {
+                "channel_id": channel_id,
+                "started": True,
+                "finished": False,
+                "start_time": time.time()
+            }
+            logger.debug(f"[ARI] PlaybackStarted id={playback_id[:8]}... ch={channel_id}")
+        
         # ✅ КРИТИЧНО: Регистрируем событие старта воспроизведения для filler оптимизации
         self.playback_events[playback_id] = {
             'started': True,
@@ -1347,9 +1436,21 @@ class OptimizedAsteriskAIHandler:
             logger.info("Playback started for channel %s: %s", channel_id, playback_id)
         await self._run_asterisk_cli(f"core show channel {channel_id}", "playback-started")
 
-        # if self.vad_enabled and self.vad_service:
-        #     await self.vad_service.stop_monitoring(channel_id)
-        #     logger.info("VAD monitoring stopped for %s (playback started)", channel_id)
+        # ✅ НОВОЕ: Используем события ChannelTalkingStarted вместо записи
+        # TALK_DETECT настроен в dialplan и генерирует события автоматически
+        # Событие обрабатывается в handle_talking_started()
+        try:
+            call_data = self.active_calls.get(channel_id)
+            if not call_data:
+                return
+            
+            # Подсчитываем playback для проверки в handle_talking_started
+            playback_count = call_data.get("playback_count", 0)
+            call_data["playback_count"] = playback_count + 1
+            
+            logger.debug("🛡️ Barge-in через TALK_DETECT готов для %s (playback #%d)", channel_id, playback_count + 1)
+        except Exception as e:
+            logger.debug(f"playback started handler error: {e}")
 
 
     async def handle_playback_finished(self, event):
@@ -1377,6 +1478,11 @@ class OptimizedAsteriskAIHandler:
 
         call_data["is_speaking"] = False
         call_data["current_playback"] = None
+        
+        # ✅ НОВОЕ: Обновляем реестр playback_events для полного barge-in
+        if playback_id and playback_id in self.playback_events:
+            self.playback_events[playback_id]["finished"] = True
+            logger.debug(f"[ARI] PlaybackFinished id={playback_id[:8]}... ch={channel_id}")
 
         if bridge_id:
             logger.info("Playback finished on bridge %s for channel %s: %s", bridge_id, channel_id, playback_id)
@@ -1384,6 +1490,26 @@ class OptimizedAsteriskAIHandler:
         else:
             logger.info("Playback finished for channel %s: %s", channel_id, playback_id)
         await self._run_asterisk_cli(f"core show channel {channel_id}", "playback-finished")
+
+        # ✅ ЭТАП 4.1: Если была barge-in запись, останавливаем её и VAD мониторинг
+        if call_data.get("barge_in_recording") and call_data.get("recording_id"):
+            try:
+                # Останавливаем VAD мониторинг для barge-in записи
+                if self.vad_service:
+                    await self.vad_service.stop_monitoring(channel_id)
+                    logger.debug(f"🛑 [BARGE-IN] Остановлен VAD мониторинг для {channel_id}")
+                
+                # Останавливаем barge-in запись
+                async with AsteriskARIClient() as ari:
+                    await ari.stop_recording(call_data["recording_id"])
+                
+                call_data["barge_in_recording"] = False
+                call_data["is_recording"] = False
+                call_data["recording_id"] = None
+                call_data["recording_filename"] = None
+                logger.info(f"🛑 [BARGE-IN] Остановлена barge-in запись после завершения playback для {channel_id}")
+            except Exception as e:
+                logger.debug(f"Ошибка остановки barge-in записи: {e}")
 
         if call_data.get("is_recording", False):
             logger.info("Recording already in progress for %s, skip restart", channel_id)
@@ -1403,12 +1529,70 @@ class OptimizedAsteriskAIHandler:
         await self.start_user_recording(channel_id)
 
 
+    async def handle_talking_started(self, event):
+        """✅ НОВОЕ: Обработка ChannelTalkingStarted от TALK_DETECT для barge-in."""
+        try:
+            logger.info(f"🎙️ [CHANNEL TALKING STARTED] Получено событие: {event}")
+            channel = event.get('channel', {})
+            channel_id = channel.get('id')
+            if not channel_id:
+                logger.warning(f"⚠️ ChannelTalkingStarted без channel_id: {event}")
+                return
+
+            call_data = self.active_calls.get(channel_id)
+            if not call_data:
+                logger.warning(f"⚠️ ChannelTalkingStarted для неактивного канала: {channel_id}")
+                return
+            
+            # ✅ НОВОЕ: Пропускаем первые playback (приветствие)
+            playback_count = call_data.get("playback_count", 0)
+            if playback_count < 2:
+                logger.debug(f"🔇 Игнорируем TalkingStarted для первых playback (приветствие) для {channel_id}, playback_count={playback_count}")
+                return
+                
+            # ✅ УСИЛЕНО: Защита от слишком ранних срабатываний (увеличено до 800ms)
+            since_start = int(time.time() * 1000) - call_data.get("last_speak_started_at", 0)
+            if since_start < 800:  # Увеличено с BARGE_IN_GUARD_MS для стабильности
+                logger.debug(f"🔇 TalkingStarted игнорируется (guard 800ms, seen {since_start}ms)")
+                return
+
+            logger.info(f"🎙️ [BARGE-IN TRIGGER] TalkingStarted → немедленное прерывание для {channel_id}")
+            
+            # Останавливаем TTS
+            await self.stop_tts_on_barge_in_optimized(channel_id, "TalkingStarted")
+            
+            # ✅ НОВОЕ: Задержка для стабилизации канала после остановки playback
+            await asyncio.sleep(0.3)
+            
+            # Запускаем Soft Window для записи речи пользователя (если канал еще активен)
+            if channel_id in self.active_calls and not call_data.get("is_recording"):
+                await self.start_user_recording(channel_id)
+            
+        except Exception as e:
+            logger.error(f"❌ handle_talking_started error: {e}", exc_info=True)
+
     async def start_user_recording(self, channel_id: str):
         """Запускает запись речи пользователя с умной детекцией окончания."""
         try:
-            # Проверяем, что запись не запущена уже
-            if channel_id in self.active_calls and self.active_calls[channel_id].get("is_recording"):
-                logger.warning(f"⚠️ Запись уже запущена для канала {channel_id}")
+            call_data = self.active_calls.get(channel_id)
+            if not call_data:
+                logger.warning(f"⚠️ Канал {channel_id} не найден в active_calls")
+                return
+            
+            # ✅ УСИЛЕНО: Предотвращаем дублирование записей
+            if call_data.get("is_recording"):
+                logger.debug(f"🔇 Запись уже активна для {channel_id}, пропускаем дублирование")
+                return
+            
+            # Проверяем barge-in запись (устаревшая логика, скоро будет удалена)
+            if call_data.get("barge_in_recording"):
+                logger.debug(f"🔇 Barge-in запись активна для {channel_id}, пропускаем")
+                return
+            
+            # ✅ НОВОЕ: Проверка флага мягкого окна
+            if self.use_soft_input:
+                # Новый путь: динамическое окно (квазистрим)
+                await self._handle_user_speech_soft_window(channel_id)
                 return
             
             # Создаем уникальное имя файла с UUID
@@ -1440,8 +1624,10 @@ class OptimizedAsteriskAIHandler:
                     self.active_calls[channel_id]["recording_filename"] = recording_filename
                     self.active_calls[channel_id]["is_recording"] = True
                     self.active_calls[channel_id]["smart_detection_active"] = self.smart_detection_enabled
+                    # ✅ КРИТИЧНО: Сбрасываем ВСЕ флаги обработки при запуске новой записи
                     self.active_calls[channel_id]["vad_processed"] = False  # Сбрасываем флаг для новой записи
                     self.active_calls[channel_id]["processing_speech"] = False  # Сбрасываем флаг обработки речи
+                    self.active_calls[channel_id]["vad_finished"] = False  # Сбрасываем флаг завершения VAD
                     
                     # Запускаем VAD мониторинг для уменьшения паузы
                     if self.vad_enabled and self.vad_service:
@@ -1468,6 +1654,251 @@ class OptimizedAsteriskAIHandler:
         except Exception as e:
             logger.error(f"❌ Ошибка запуска записи: {e}", exc_info=True)
     
+    async def _handle_user_speech_soft_window(self, channel_id: str):
+        """
+        ✅ НОВОЕ: Обработка речи через мягкое окно (квазистрим)
+        Запись кусками по 5 сек, каждый кусок обрабатывается параллельно через ASR.
+        """
+        try:
+            call_data = self.active_calls.get(channel_id)
+            if not call_data:
+                return
+            
+            logger.info(f"🪟 [SOFT WINDOW] Запуск динамической записи для {channel_id}")
+            
+            # Флаг что запись активна
+            call_data["is_recording"] = True
+            call_data["vad_processed"] = False
+            call_data["processing_speech"] = False
+            
+            # Накопитель текста
+            accumulated_text = []
+            prefetch_started = False
+            chunk_index = 0
+            
+            # Параметры из .env
+            window_seconds = float(os.getenv("CHUNK_STREAMING_SECONDS", "5"))
+            max_total_seconds = float(os.getenv("MAX_UTTERANCE_SECONDS", "60"))
+            silence_timeout = float(os.getenv("VAD_SILENCE_TIMEOUT", "2.0"))
+            
+            async def on_chunk(ch_id: str, recording_filename: str, reason: str):
+                """Обработка каждого куска речи"""
+                nonlocal prefetch_started, chunk_index
+                
+                is_final = (reason != "max_time_reached")
+                
+                # Путь к файлу записи
+                recording_path = f"/var/spool/asterisk/recording/{recording_filename}.wav"
+                
+                # Ждем появления файла (до 3 секунд)
+                max_wait = 3.0
+                wait_start = time.time()
+                while not os.path.exists(recording_path) and (time.time() - wait_start < max_wait):
+                    await asyncio.sleep(0.1)
+                
+                if not os.path.exists(recording_path):
+                    logger.warning(f"⚠️ [SOFT WINDOW] Файл chunk#{chunk_index} не найден: {recording_path}")
+                    return
+                
+                # Распознавание куска через ASR
+                if self.asr:
+                    try:
+                        text = await self.asr.speech_to_text(recording_path)
+                        if text:
+                            accumulated_text.append(text)
+                            logger.info(f"🎤 [SOFT WINDOW] chunk#{chunk_index} ({'final' if is_final else 'partial'}): {text[:50]}...")
+                        else:
+                            logger.debug(f"🔇 [SOFT WINDOW] chunk#{chunk_index} пустой")
+                    except Exception as e:
+                        logger.warning(f"⚠️ [SOFT WINDOW] ASR error chunk#{chunk_index}: {e}")
+                
+                # Префетч: начать запрос к агенту после первых кусков для ускорения ответа
+                if not is_final and not prefetch_started and len(" ".join(accumulated_text)) > 20:
+                    prefetch_started = True
+                    combined = " ".join(accumulated_text)
+                    logger.info(f"🚀 [PREFETCH] Started after chunk#{chunk_index}: {combined[:50]}...")
+                    # Запускаем в фоне, не ждем (можно добавить warm_cache если есть)
+                    # asyncio.create_task(self.agent.warm_cache(ch_id, combined))
+                
+                chunk_index += 1
+            
+            # Функция старта записи сегмента
+            async def start_segment(duration: float):
+                import uuid
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+                unique_id = str(uuid.uuid4())[:8]
+                recording_filename = f"user_{channel_id}_{timestamp}_{unique_id}_chunk{chunk_index}"
+                
+                try:
+                    async with AsteriskARIClient() as ari:
+                        recording_id = await ari.start_recording(channel_id, recording_filename, max_duration=int(duration))
+                    
+                    # ✅ НОВОЕ: Если recording_id пустой, канал не существует
+                    if not recording_id:
+                        logger.warning(f"⚠️ [SOFT WINDOW] Не удалось запустить запись chunk#{chunk_index}, возможно канал разорван")
+                        return (None, None)
+                    
+                    return (recording_id, recording_filename)
+                except Exception as e:
+                    logger.warning(f"⚠️ [SOFT WINDOW] Ошибка запуска записи chunk#{chunk_index}: {e}")
+                    return (None, None)
+            
+            # Функция проверки существования канала
+            async def check_channel_exists(ch_id: str):
+                """Проверяет что канал еще существует в active_calls"""
+                return ch_id in self.active_calls
+            
+            # Запускаем динамическую запись через VAD сервис
+            if self.vad_service:
+                await self.vad_service.record_until_silence_with_soft_window(
+                    channel_id=channel_id,
+                    start_segment_fn=start_segment,
+                    window_seconds=window_seconds,
+                    max_total_seconds=max_total_seconds,
+                    silence_timeout_override=silence_timeout,
+                    on_chunk=on_chunk,
+                    on_final=on_chunk,
+                    channel_check_fn=check_channel_exists  # ✅ НОВОЕ: Проверка канала
+                )
+            else:
+                logger.error("❌ [SOFT WINDOW] VAD сервис недоступен!")
+                call_data["is_recording"] = False
+                return
+            
+            # Финальная обработка после завершения всех сегментов
+            call_data["is_recording"] = False
+            
+            user_text = " ".join(accumulated_text).strip()
+            if not user_text:
+                logger.warning("⚠️ [SOFT WINDOW] ASR вернул пустой результат после всех чанков")
+                return
+            
+            logger.info(f"🎤 [SOFT WINDOW] User said (full, {len(accumulated_text)} chunks): {user_text}")
+            
+            # ✅ НОВОЕ: Проверяем что канал еще существует перед обработкой AI
+            if channel_id not in self.active_calls:
+                logger.warning(f"⚠️ [SOFT WINDOW] Канал {channel_id} разорван, пропускаем обработку AI")
+                return
+            
+            # ✅ Обрабатываем текст напрямую через AI (минуя повторный ASR)
+            call_data = self.active_calls[channel_id]
+            session_id = call_data["session_id"]
+            overall_start = time.time()
+            
+            # Сбрасываем таймер завершения при новой активности
+            if "timeout_task" in call_data:
+                call_data["timeout_task"].cancel()
+                logger.info(f"⏰ Таймер завершения сброшен для {channel_id} - новая активность")
+            
+            # Устанавливаем флаг обработки, чтобы заблокировать параллельные потоки
+            call_data["processing_speech"] = True
+            
+            try:
+                normalized_text = normalize_text(user_text)
+                logger.info(f"🎤 [SOFT WINDOW] Пользователь сказал: '{user_text}' → '{normalized_text}'")
+                
+                # Обновляем активность VAD
+                if self.vad_enabled and self.vad_service:
+                    await self.vad_service.update_activity(channel_id)
+                
+                # Проверяем, что текст не пустой
+                if not normalized_text or not normalized_text.strip():
+                    logger.warning(f"⚠️ [SOFT WINDOW] Нормализованный текст пустой, пропускаем обработку")
+                    return
+                
+                # Умная фильтрация речи
+                if self.smart_detection_enabled and self.speech_filter:
+                    if self.speech_debug_logging:
+                        analysis = self.speech_filter.get_detailed_analysis(normalized_text)
+                        logger.info(f"🧠 Анализ речи: {analysis}")
+                    
+                    if not self.speech_filter.is_informative(normalized_text):
+                        logger.info(f"🗑️ Речь неинформативна: '{normalized_text}' - пропускаем обработку")
+                        
+                        call_data["transcript"].append({
+                            "speaker": "user",
+                            "text": normalized_text,
+                            "raw": user_text,
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "filtered": True,
+                            "filter_reason": "non_informative"
+                        })
+                        
+                        await asyncio.sleep(0.5)
+                        if channel_id in self.active_calls:
+                            self.active_calls[channel_id]["processing_speech"] = False
+                        await self.start_user_recording(channel_id)
+                        return
+                    else:
+                        logger.info(f"✅ Речь информативна: '{normalized_text}' - продолжаем обработку")
+                
+                # Добавляем распознанную речь в транскрипт
+                call_data["transcript"].append({
+                    "speaker": "user",
+                    "text": normalized_text,
+                    "raw": user_text,
+                    "timestamp": datetime.now(timezone.utc).isoformat()
+                })
+                
+                # Останавливаем текущий TTS, если пользователь перебил
+                await self.stop_tts_on_barge_in_optimized(channel_id, "UserSpeech")
+                
+                if self.agent and normalized_text:
+                    try:
+                        # ✅ ОПТИМИЗАЦИЯ: мгновенный filler word
+                        filler_task = None
+                        if self.filler_tts:
+                            filler_task = asyncio.create_task(
+                                self._play_instant_filler(channel_id, normalized_text)
+                            )
+                            await asyncio.sleep(0.20)
+                        
+                        # Получаем streaming-ответ от агента
+                        response_generator = self.agent.get_response_generator(normalized_text, session_id)
+                        await self.process_ai_response_streaming_with_chunked_tts(channel_id, response_generator)
+                        
+                        if filler_task and not filler_task.done():
+                            await filler_task
+                        
+                        total_time = time.time() - overall_start
+                        logger.info(f"✅ [SOFT WINDOW] Обработка завершена за {total_time:.2f}s")
+                        
+                        # Логируем метрики
+                        self._log_performance_metrics(channel_id, total_time)
+                        
+                        # Добавляем ответ бота в транскрипт
+                        if channel_id in self.active_calls:
+                            bot_response = call_data.get("bot_response", "")
+                            if bot_response:
+                                call_data["transcript"].append({
+                                    "speaker": "bot",
+                                    "text": bot_response,
+                                    "timestamp": datetime.now(timezone.utc).isoformat()
+                                })
+                                call_data["bot_response"] = ""
+                        
+                        # Сохраняем лог и запускаем таймер бездействия
+                        await self._save_call_log_forced(channel_id)
+                        await self._start_call_timeout(channel_id)
+                    
+                    except Exception as ai_error:
+                        logger.error(f"❌ [SOFT WINDOW] Ошибка оптимизированного AI: {ai_error}", exc_info=True)
+                        await self._fallback_to_old_system(channel_id, normalized_text)
+                else:
+                    logger.warning("AI Agent недоступен или текст пустой")
+                    await self.speak_optimized(channel_id, "звините, система  временно недоступна")
+            
+            except Exception as e:
+                logger.error(f"❌ [SOFT WINDOW] Ошибка AI обработки: {e}", exc_info=True)
+            finally:
+                if channel_id in self.active_calls:
+                    self.active_calls[channel_id]["processing_speech"] = False
+                
+        except Exception as e:
+            logger.error(f"❌ [SOFT WINDOW] Ошибка обработки для {channel_id}: {e}", exc_info=True)
+            if channel_id in self.active_calls:
+                self.active_calls[channel_id]["is_recording"] = False
+    
 # Удален _on_adaptive_recording_finished - возвращаемся к простой логике
     
     async def handle_recording_finished(self, event):
@@ -1476,6 +1907,11 @@ class OptimizedAsteriskAIHandler:
         recording_name = recording.get('name')
         
         logger.info(f"🎤 Запись завершена: {recording_name}")
+        
+        # ✅ ЗАЩИТА: Пропускаем barge-in записи - они обрабатываются отдельным callback
+        if recording_name and recording_name.startswith("bargein_"):
+            logger.debug(f"🔇 Пропускаем barge-in запись {recording_name} - обрабатывается отдельным callback")
+            return
         
         # щем канал по имени записи
         channel_id = None
@@ -1490,7 +1926,13 @@ class OptimizedAsteriskAIHandler:
             return
                 
         if channel_id:
-            # Проверяем, не обработана ли уже запись VAD
+            # ✅ КРИТИЧНО: Проверяем флаг обработки речи (более надежный, чем vad_processed)
+            # vad_processed может быть установлен VAD callback, но обработка еще не началась
+            if self.active_calls[channel_id].get("processing_speech", False):
+                logger.info(f"🎯 Запись {recording_name} уже обрабатывается (processing_speech=True), пропускаем дублирование")
+                return
+            
+            # Проверяем, не обработана ли уже запись VAD (дополнительная проверка)
             if self.active_calls[channel_id].get("vad_processed", False):
                 logger.info(f"🎯 Запись {recording_name} уже обработана VAD, пропускаем дублирование")
                 return
@@ -1503,13 +1945,25 @@ class OptimizedAsteriskAIHandler:
             # Путь к записанному файлу
             recording_path = f"/var/spool/asterisk/recording/{recording_name}.wav"
             
-            # Проверяем существование файла перед обработкой
-            if os.path.exists(recording_path):
-                logger.info(f"✅ Файл записи найден: {recording_path}")
-                # Обрабатываем речь пользователя
-                await self.process_user_speech_optimized(channel_id, recording_path)
-            else:
-                logger.warning(f"⚠️ Файл записи не найден: {recording_path}")
+            # Проверяем существование файла перед обработкой (даем время файлу сохраниться)
+            # ✅ УВЕЛИЧЕНО: Asterisk может задерживать сохранение файла после RecordingFinished события
+            max_wait_attempts = 20  # Увеличено с 5 до 20 попыток
+            wait_interval = 0.2  # Увеличено с 0.1 до 0.2 секунды
+            for attempt in range(max_wait_attempts):
+                if os.path.exists(recording_path):
+                    file_size = os.path.getsize(recording_path)
+                    if file_size > 0:  # Проверяем, что файл не пустой
+                        logger.info(f"✅ Файл записи найден: {recording_path} (попытка {attempt+1}, размер={file_size} bytes)")
+                        # Обрабатываем речь пользователя
+                        await self.process_user_speech_optimized(channel_id, recording_path)
+                        return
+                    else:
+                        logger.debug(f"⏳ Файл найден, но пустой (попытка {attempt+1}), ждем...")
+                
+                if attempt < max_wait_attempts - 1:
+                    await asyncio.sleep(wait_interval)
+            
+            logger.warning(f"⚠️ Файл записи не найден после {max_wait_attempts} попыток ({max_wait_attempts * wait_interval:.1f}s): {recording_path}")
         else:
             logger.warning(f"Не найден канал для записи: {recording_name}")
     
@@ -1523,6 +1977,14 @@ class OptimizedAsteriskAIHandler:
             audio_path = event.get('args', [{}])[0].get('audio_path')
             if audio_path:
                 await self.process_user_speech_optimized(channel_id, audio_path)
+    
+    # ✅ УДАЛЕНО: _start_barge_in_recording
+    # Теперь используем события ChannelTalkingStarted от TALK_DETECT вместо записи
+    # Barge-in обрабатывается в handle_talking_started()
+    
+    # ✅ УДАЛЕНО: _on_barge_in_recording_finished
+    # Теперь используем события ChannelTalkingStarted от TALK_DETECT
+    # Обработка barge-in происходит в handle_talking_started()
     
     async def _on_vad_recording_finished(self, channel_id: str, recording_id: str, reason: str):
         """
@@ -1541,28 +2003,67 @@ class OptimizedAsteriskAIHandler:
                 await ari.stop_recording(recording_id)
                 logger.info(f"✅ VAD остановил запись {recording_id} для канала {channel_id}")
             
+            # ✅ КРИТИЧНО: Даем время Asterisk сохранить файл после остановки записи
+            # RecordingFinished событие приходит асинхронно, файл может появиться с задержкой
+            await asyncio.sleep(0.3)  # Небольшая задержка для стабилизации
+            
             # Обновляем состояние канала
             if channel_id in self.active_calls:
                 call_data = self.active_calls[channel_id]
                 call_data["is_recording"] = False
+                
+                # Проверяем, что это НЕ barge-in запись
+                if call_data.get("barge_in_recording"):
+                    # Это не должно произойти, но на всякий случай
+                    logger.warning(f"⚠️ VAD callback для barge-in записи, игнорируем")
+                    return
                 call_data["vad_finished"] = True
                 call_data["vad_reason"] = reason
+                
+                # ✅ КРИТИЧНО: Проверяем флаг processing_speech перед установкой vad_processed
+                # Если обработка уже идет через handle_recording_finished, не блокируем её
+                if call_data.get("processing_speech", False):
+                    logger.info(f"🎯 VAD callback: обработка уже идет через handle_recording_finished, пропускаем дублирование")
+                    call_data["vad_processed"] = True  # Устанавливаем флаг для handle_recording_finished
+                    return
+                
                 call_data["vad_processed"] = True  # Флаг для предотвращения дублирования
+                
+                # Получаем имя файла для обработки
+                recording_filename = call_data.get("recording_filename")
+                if recording_filename:
+                    recording_path = f"/var/spool/asterisk/recording/{recording_filename}.wav"
+                    
+                    # ✅ КРИТИЧНО: Ждем, пока Asterisk сохранит файл после остановки записи
+                    # RecordingFinished событие приходит асинхронно, файл появляется с задержкой
+                    max_wait_attempts = 20
+                    wait_interval = 0.2
+                    file_found = False
+                    for attempt in range(max_wait_attempts):
+                        if os.path.exists(recording_path):
+                            file_size = os.path.getsize(recording_path)
+                            if file_size > 0:
+                                logger.info(f"✅ VAD файл найден: {recording_path} (попытка {attempt+1}, размер={file_size} bytes)")
+                                file_found = True
+                                break
+                            else:
+                                logger.debug(f"⏳ VAD файл найден, но пустой (попытка {attempt+1}), ждем...")
+                        
+                        if attempt < max_wait_attempts - 1:
+                            await asyncio.sleep(wait_interval)
+                    
+                    if file_found:
+                        logger.info(f"🎯 VAD: Обрабатываем аудио файл: {recording_path}")
+                        # Обрабатываем речь пользователя
+                        await self.process_user_speech_optimized(channel_id, recording_path)
+                    else:
+                        logger.warning(f"⚠️ VAD файл не найден после {max_wait_attempts} попыток ({max_wait_attempts * wait_interval:.1f}s): {recording_path}")
+                
                 call_data["current_recording"] = None  # Сбрасываем текущую запись
                 
                 # Останавливаем VAD мониторинг
                 if self.vad_service:
                     await self.vad_service.stop_monitoring(channel_id)
-            
-            # Обрабатываем записанную речь
-            if channel_id in self.active_calls:
-                call_data = self.active_calls[channel_id]
-                recording_filename = call_data.get("recording_filename")
-                if recording_filename:
-                    # Формируем правильный путь к аудио файлу (запись сохраняется в /var/spool/asterisk/recording/)
-                    audio_path = f"/var/spool/asterisk/recording/{recording_filename}.wav"
-                    logger.info(f"🎯 VAD: Обрабатываем аудио файл: {audio_path}")
-                    await self.process_user_speech_optimized(channel_id, audio_path)
             
         except Exception as e:
             logger.error(f"❌ Ошибка в VAD callback для {channel_id}: {e}", exc_info=True)
