@@ -21,6 +21,8 @@ logs/
 # Backup folders
 backup_*/
 АРХИВ_БЕКАП/
+project_backup/
+SAVED_ARCHIVE_*/
 Новый дизайн для вебки/
 cursor_langchain_vox_bot.md
 

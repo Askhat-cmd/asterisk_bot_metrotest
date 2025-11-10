@@ -2,6 +2,7 @@
 
 ###############################################################################
 # Скрипт автоматического создания бекапа проекта Asterisk Voice Bot
+# Поддерживает выбор: только asterisk-vox-bot или весь корень проекта
 # Автор: Claude (Anthropic)
 # Дата: 7 октября 2025
 ###############################################################################
@@ -17,6 +18,8 @@ NC='\033[0m' # No Color
 PROJECT_DIR="/root/Asterisk_bot"
 BACKUP_DIR="${PROJECT_DIR}/project_backup"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+# Сколько бэкапов хранить (по умолчанию 20). Меняйте под себя.
+KEEP_BACKUPS=20
 
 # Функция вывода сообщений
 print_info() {
@@ -65,6 +68,26 @@ if [ ! -d "$PROJECT_DIR" ]; then
     exit 1
 fi
 
+# Выбор режима бэкапа
+echo -e "${BLUE}Выберите режим бэкапа:${NC}"
+echo "  1) Только asterisk-vox-bot (по умолчанию)"
+echo "  2) Весь корень /root/Asterisk_bot (исключая project_backup)"
+echo -n "Ваш выбор [1/2]: "
+read BACKUP_MODE_CHOICE
+if [ -z "$BACKUP_MODE_CHOICE" ]; then BACKUP_MODE_CHOICE=1; fi
+if [ "$BACKUP_MODE_CHOICE" = "2" ]; then
+    BACKUP_SCOPE="root"
+else
+    BACKUP_SCOPE="project"
+fi
+
+if [ "$BACKUP_SCOPE" = "project" ] && [ ! -d "$PROJECT_DIR/asterisk-vox-bot" ]; then
+    print_error "Директория asterisk-vox-bot не найдена: $PROJECT_DIR/asterisk-vox-bot"
+    exit 1
+fi
+
+print_info "Режим бэкапа: $( [ "$BACKUP_SCOPE" = "project" ] && echo 'только asterisk-vox-bot' || echo 'весь корень проекта' )"
+
 # Создание директории для бекапов если не существует
 if [ ! -d "$BACKUP_DIR" ]; then
     print_info "Создание директории для бекапов: $BACKUP_DIR"
@@ -75,13 +98,20 @@ fi
 echo -n "Введите описание бекапа (Enter для пропуска): "
 read BACKUP_DESCRIPTION
 
-# Формирование имени файла бекапа
+# Тег режима для имени файла
+if [ "$BACKUP_SCOPE" = "project" ]; then
+    SCOPE_TAG="project"
+else
+    SCOPE_TAG="root"
+fi
+
+# Формирование имени файла бекапа с тегом режима
 if [ -n "$BACKUP_DESCRIPTION" ]; then
     # Заменяем пробелы на подчеркивания
     BACKUP_DESC_CLEAN=$(echo "$BACKUP_DESCRIPTION" | tr ' ' '_' | tr -cd '[:alnum:]_-')
-    BACKUP_NAME="backup_${BACKUP_DESC_CLEAN}_${TIMESTAMP}.tar.gz"
+    BACKUP_NAME="backup_${SCOPE_TAG}_${BACKUP_DESC_CLEAN}_${TIMESTAMP}.tar.gz"
 else
-    BACKUP_NAME="backup_${TIMESTAMP}.tar.gz"
+    BACKUP_NAME="backup_${SCOPE_TAG}_${TIMESTAMP}.tar.gz"
 fi
 
 BACKUP_PATH="${BACKUP_DIR}/${BACKUP_NAME}"
@@ -89,40 +119,90 @@ BACKUP_PATH="${BACKUP_DIR}/${BACKUP_NAME}"
 print_info "Имя бекапа: $BACKUP_NAME"
 echo ""
 
-# Подсчет размера проекта (без папки бекапов)
-print_info "Подсчет размера всего репозитория..."
+# Подготовка manifest_backup.txt
+TMP_MANIFEST_DIR=$(mktemp -d)
+MANIFEST_FILE="$TMP_MANIFEST_DIR/manifest_backup.txt"
+{
+    echo "scope: $SCOPE_TAG"
+    echo "created_at: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+    if [ -n "$BACKUP_DESCRIPTION" ]; then
+        echo "description: $BACKUP_DESCRIPTION"
+    else
+        echo "description: -"
+    fi
+    if [ "$BACKUP_SCOPE" = "project" ]; then
+        echo "source_path: $PROJECT_DIR/asterisk-vox-bot"
+    else
+        echo "source_path: $PROJECT_DIR (root)"
+    fi
+} > "$MANIFEST_FILE"
+
+# Подсчет размера и создание архива по выбранному режиму
 cd "$PROJECT_DIR" || exit 1
 
-PROJECT_SIZE=$(du -sb --exclude='project_backup' . 2>/dev/null | cut -f1)
-if [ -n "$PROJECT_SIZE" ]; then
-    HUMAN_SIZE=$(get_human_size $PROJECT_SIZE)
-    print_info "Размер репозитория (без бекапов): $HUMAN_SIZE"
+if [ "$BACKUP_SCOPE" = "project" ]; then
+    # Размер только asterisk-vox-bot
+    print_info "Подсчет размера проекта asterisk-vox-bot..."
+    PROJECT_SIZE=$(du -sb asterisk-vox-bot 2>/dev/null | cut -f1)
+    if [ -n "$PROJECT_SIZE" ]; then
+        HUMAN_SIZE=$(get_human_size $PROJECT_SIZE)
+        print_info "Размер проекта asterisk-vox-bot (без исключений): $HUMAN_SIZE"
+    fi
+
+    echo ""
+    print_info "Создание архива только проекта asterisk-vox-bot (включая venv и chroma)..."
+    print_warning "Исключаются: .git/, __pycache__, *.pyc, logs/, nohup.out"
+    echo ""
+
+    # Бэкапим ТОЛЬКО папку asterisk-vox-bot + manifest
+    tar -czf "$BACKUP_PATH" \
+        -C "$TMP_MANIFEST_DIR" manifest_backup.txt \
+        --exclude='.git' \
+        --exclude='__pycache__' \
+        --exclude='**/__pycache__' \
+        --exclude='**/*.pyc' \
+        --exclude='logs' \
+        --exclude='nohup.out' \
+        --exclude='*.log' \
+        --exclude='restore_temp' \
+        -C "$PROJECT_DIR" asterisk-vox-bot \
+        2>&1 | grep -v "Removing leading"
+else
+    # Размер всего корня (без project_backup)
+    print_info "Подсчет размера всего репозитория (без project_backup)..."
+    PROJECT_SIZE=$(du -sb --exclude='project_backup' . 2>/dev/null | cut -f1)
+    if [ -n "$PROJECT_SIZE" ]; then
+        HUMAN_SIZE=$(get_human_size $PROJECT_SIZE)
+        print_info "Размер репозитория (без бэкапов): $HUMAN_SIZE"
+    fi
+
+    echo ""
+    print_info "Создание ПОЛНОГО архива /root/Asterisk_bot/ (включая venv и chroma)..."
+    print_warning "Исключаются: project_backup/, .git/, __pycache__, *.pyc, logs/"
+    echo ""
+
+    # Бэкапим ВЕСЬ корень + manifest (кроме project_backup)
+    tar -czf "$BACKUP_PATH" \
+        -C "$TMP_MANIFEST_DIR" manifest_backup.txt \
+        --exclude='project_backup' \
+        --exclude='.git' \
+        --exclude='asterisk-vox-bot/.git' \
+        --exclude='__pycache__' \
+        --exclude='**/__pycache__' \
+        --exclude='**/*.pyc' \
+        --exclude='asterisk-vox-bot/logs' \
+        --exclude='asterisk-vox-bot/nohup.out' \
+        --exclude='*.log' \
+        --exclude='restore_temp' \
+        -C "$(dirname "$PROJECT_DIR")" "$(basename "$PROJECT_DIR")" \
+        2>&1 | grep -v "Removing leading"
 fi
-
-echo ""
-print_info "Создание ПОЛНОГО архива /root/Asterisk_bot/ (включая venv и chroma)..."
-print_warning "Исключаются только: project_backup/, .git/, __pycache__, *.pyc, logs/"
-echo ""
-
-# Создание бекапа
-# Бекапим ВЕСЬ корень /root/Asterisk_bot/ (кроме project_backup)
-# ВКЛЮЧАЯ venv и chroma для полного восстановления
-tar -czf "$BACKUP_PATH" \
-    --exclude='project_backup' \
-    --exclude='.git' \
-    --exclude='asterisk-vox-bot/.git' \
-    --exclude='__pycache__' \
-    --exclude='**/__pycache__' \
-    --exclude='**/*.pyc' \
-    --exclude='asterisk-vox-bot/logs' \
-    --exclude='asterisk-vox-bot/nohup.out' \
-    --exclude='*.log' \
-    --exclude='restore_temp' \
-    -C "$(dirname "$PROJECT_DIR")" "$(basename "$PROJECT_DIR")" \
-    2>&1 | grep -v "Removing leading"
 
 # Получаем код возврата tar (первая команда в pipeline)
 TAR_EXIT_CODE=${PIPESTATUS[0]}
+
+# Удаление временной директории с манифестом
+rm -rf "$TMP_MANIFEST_DIR"
 
 # Проверка успешности создания бекапа
 if [ $TAR_EXIT_CODE -eq 0 ] && [ -f "$BACKUP_PATH" ]; then
@@ -179,16 +259,16 @@ if [ $TAR_EXIT_CODE -eq 0 ] && [ -f "$BACKUP_PATH" ]; then
     
     echo ""
     
-    # Автоматическая очистка старых бекапов (оставляем только последние 7)
+    # Автоматическая очистка старых бекапов (оставляем только последние $KEEP_BACKUPS)
     print_info "Проверка старых бекапов..."
     BACKUP_COUNT=$(ls -1 "$BACKUP_DIR"/*.tar.gz 2>/dev/null | wc -l)
     
-    if [ $BACKUP_COUNT -gt 7 ]; then
-        OLD_BACKUPS_COUNT=$(($BACKUP_COUNT - 7))
-        print_warning "Найдено $BACKUP_COUNT бекапов. Удаляю $OLD_BACKUPS_COUNT старых..."
+    if [ $BACKUP_COUNT -gt $KEEP_BACKUPS ]; then
+        OLD_BACKUPS_COUNT=$(($BACKUP_COUNT - $KEEP_BACKUPS))
+        print_warning "Найдено $BACKUP_COUNT бекапов. Удаляю $OLD_BACKUPS_COUNT старых (лимит: $KEEP_BACKUPS)..."
         
-        # Удаляем все кроме последних 7
-        ls -t "$BACKUP_DIR"/*.tar.gz | tail -n +8 | while read old_backup; do
+        # Удаляем все кроме последних $KEEP_BACKUPS
+        ls -t "$BACKUP_DIR"/*.tar.gz | tail -n +$(($KEEP_BACKUPS + 1)) | while read old_backup; do
             OLD_NAME=$(basename "$old_backup")
             OLD_SIZE=$(stat -c%s "$old_backup" 2>/dev/null || stat -f%z "$old_backup" 2>/dev/null)
             OLD_SIZE_HUMAN=$(get_human_size $OLD_SIZE)
@@ -200,7 +280,7 @@ if [ $TAR_EXIT_CODE -eq 0 ] && [ -f "$BACKUP_PATH" ]; then
         print_success "Очистка завершена. Осталось бекапов: $NEW_COUNT"
         echo ""
     else
-        print_info "Бекапов: $BACKUP_COUNT (лимит: 7). Очистка не требуется."
+        print_info "Бекапов: $BACKUP_COUNT (лимит: $KEEP_BACKUPS). Очистка не требуется."
         echo ""
     fi
     
