@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Parallel TTS Processor для параллельной обработки чанков
 Цель: TTS каждого чанка запускается немедленно, параллельно с генерацией следующих
@@ -14,6 +14,22 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
+
+# ✅ CTO.NEW: Статистика underrun для мониторинга
+class TTSUnderrunStats:
+    """Статистика Buffer underrun для мониторинга качества воспроизведения"""
+    def __init__(self):
+        self.underrun_count = 0
+        self.last_underrun_time = None
+        self.total_playback_time = 0
+    
+    def record_underrun(self):
+        """Записывает факт underrun и обновляет статистику"""
+        self.underrun_count += 1
+        self.last_underrun_time = time.time()
+        underrun_percent = (self.underrun_count / max(1, self.total_playback_time)) * 100
+        logger.warning(f"TTS: Underrun #{self.underrun_count} "
+                       f"(frequency: {underrun_percent:.2f}% of playback time)")
 
 class ParallelTTSProcessor:
     """
@@ -54,6 +70,11 @@ class ParallelTTSProcessor:
         self.performance_metrics: Dict[str, Dict] = defaultdict(dict)
         # Опциональный колбэк: вызывается, когда для канала больше нет активных TTS задач и очередь пуста
         self.on_tts_idle: Optional[Any] = None
+        
+        # ✅ CTO.NEW: Инициализация статистики underrun
+        self._underrun_stats = TTSUnderrunStats()
+        # ✅ CTO.NEW: Флаги состояния воспроизведения для обработки underrun
+        self.playback_paused: Dict[str, bool] = defaultdict(bool)
         
         logger.info(f"🔄 ParallelTTSProcessor инициализирован с {self.tts_workers} TTS workers")
     
@@ -208,8 +229,16 @@ class ParallelTTSProcessor:
                 next_item = self.playback_queues[channel_id][0]
                 
                 if next_item["chunk_num"] != next_expected_chunk:
-                    # Нужный chunk еще не готов - ЖДЕМ немного
-                    await asyncio.sleep(0.05)
+                    # ✅ CTO.NEW: Детекция Buffer underrun - нужный chunk не готов
+                    # Проверяем, есть ли активные TTS задачи
+                    if len(self.tts_tasks.get(channel_id, [])) > 0:
+                        # TTS задачи еще идут, возможен underrun
+                        logger.warning(f"TTS: Potential buffer underrun - waiting for chunk {next_expected_chunk}, but have chunk {next_item['chunk_num']}")
+                        # ✅ CTO.NEW: Вызываем обработчик underrun
+                        await self._handle_buffer_underrun(channel_id)
+                    else:
+                        # Нужный chunk еще не готов - ЖДЕМ немного
+                        await asyncio.sleep(0.05)
                     continue
                 
                 # Берем следующий готовый чанк В ПРАВИЛЬНОМ ПОРЯДКЕ
@@ -240,6 +269,11 @@ class ParallelTTSProcessor:
         """Воспроизводит аудио чанк через ARI"""
         
         try:
+            # ✅ CTO.NEW: Проверяем, не на паузе ли воспроизведение
+            while self.playback_paused.get(channel_id, False):
+                logger.debug(f"TTS: Playback paused for {channel_id}, waiting...")
+                await asyncio.sleep(0.05)
+            
             play_start = time.time()
             
             # ✅ РЕАЛЬНОЕ ВОСПРОИЗВЕДЕНИЕ: Сохраняем WAV и играем через ARI
@@ -310,6 +344,66 @@ class ParallelTTSProcessor:
         
         logger.info(f"📊 First audio metrics for {channel_id}: TTS={item['tts_time']:.2f}s")
     
+    # ✅ CTO.NEW: Детекция underrun и автоматическая пауза
+    async def _handle_buffer_underrun(self, channel_id: str):
+        """
+        Обработка Buffer underrun:
+        1. Получить уведомление об underrun
+        2. Пауза воспроизведения на 100-200ms
+        3. Дождаться накопления буфера (минимум 2-3 чанка)
+        4. Возобновить воспроизведение
+        """
+        
+        logger.warning(f"TTS: Buffer underrun detected! Pausing playback to accumulate buffer...")
+        
+        # ✅ CTO.NEW: Записываем статистику underrun
+        self._underrun_stats.record_underrun()
+        
+        # 1. Пауза воспроизведения
+        try:
+            await self._pause_playback(channel_id)
+            logger.debug("TTS: Playback paused")
+        except Exception as e:
+            logger.error(f"TTS: Error pausing playback: {e}")
+        
+        # 2. Ждать накопления буфера (минимум 2-3 чанка)
+        buffer_wait_time = 0.15  # 150ms для накопления буфера
+        logger.debug(f"TTS: Waiting {buffer_wait_time}s for buffer accumulation...")
+        await asyncio.sleep(buffer_wait_time)
+        
+        # 3. Проверить, достаточно ли в буфере
+        current_buffer_size = await self._get_queue_size(channel_id)
+        min_buffer_needed = 2  # Минимум 2 чанка в очереди
+        
+        if current_buffer_size >= min_buffer_needed:
+            logger.info(f"TTS: Buffer accumulated ({current_buffer_size} chunks), resuming playback")
+            try:
+                await self._resume_playback(channel_id)
+                logger.debug("TTS: Playback resumed")
+            except Exception as e:
+                logger.error(f"TTS: Error resuming playback: {e}")
+        else:
+            logger.warning(f"TTS: Buffer not enough ({current_buffer_size} chunks), waiting longer...")
+            await asyncio.sleep(0.1)  # Дополнительное ожидание
+            await self._resume_playback(channel_id)
+    
+    # ✅ CTO.NEW: Вспомогательные методы для управления воспроизведением
+    async def _pause_playback(self, channel_id: str):
+        """Пауза воспроизведения на канале"""
+        self.playback_paused[channel_id] = True
+        logger.debug(f"TTS: Playback paused for channel {channel_id}")
+    
+    async def _resume_playback(self, channel_id: str):
+        """Возобновление воспроизведения на канале"""
+        self.playback_paused[channel_id] = False
+        logger.debug(f"TTS: Playback resumed for channel {channel_id}")
+    
+    async def _get_queue_size(self, channel_id: str) -> int:
+        """Возвращает текущий размер очереди воспроизведения"""
+        queue_size = len(self.playback_queues.get(channel_id, []))
+        logger.debug(f"TTS: Current queue size for {channel_id}: {queue_size}")
+        return queue_size
+    
     async def clear_all_queues(self, channel_id: str):
         """
         Очищает все очереди и отменяет задачи для канала
@@ -329,6 +423,9 @@ class ParallelTTSProcessor:
             
             # Сбрасываем флаг занятости
             self.playback_busy[channel_id] = False
+            
+            # ✅ CTO.NEW: Сбрасываем флаг паузы при очистке
+            self.playback_paused[channel_id] = False
             
             # ✅ КРИТИЧНО: Сбрасываем метрику first_audio для нового вопроса
             if channel_id in self.performance_metrics:
@@ -351,5 +448,14 @@ class ParallelTTSProcessor:
             "active_tts_tasks": len(self.tts_tasks[channel_id]),
             "playback_busy": self.playback_busy[channel_id],
             "queued_chunks": [item["chunk_num"] for item in self.playback_queues[channel_id]]
+        }
+    
+    # ✅ CTO.NEW: Метод для получения статистики underrun
+    def get_underrun_stats(self) -> Dict[str, Any]:
+        """Возвращает статистику Buffer underrun"""
+        return {
+            "underrun_count": self._underrun_stats.underrun_count,
+            "last_underrun_time": self._underrun_stats.last_underrun_time,
+            "total_playback_time": self._underrun_stats.total_playback_time
         }
 
