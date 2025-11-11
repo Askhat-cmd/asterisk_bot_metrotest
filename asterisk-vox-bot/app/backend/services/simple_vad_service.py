@@ -8,6 +8,33 @@
 - Дополнение, не замена - работает поверх существующей системы
 - Обязательный fallback - при ошибке возвращается к стандартной записи
 - Минимальные изменения - не трогает существующий код
+
+📋 ЛОГИРОВАНИЕ VAD (Task 2.3)
+==============================
+Система логирует события VAD на трех уровнях для улучшения отладки:
+
+DEBUG уровень (детальная информация для разработчиков):
+- VAD monitoring: длительность записи, длительность молчания, счетчик обновлений активности
+- VAD frequency analysis: средний интервал между активностями, выбранный timeout, определенный режим (continuous/intermittent)
+- VAD final stats: финальная статистика анализа после завершения записи
+
+INFO уровень (важные события и режимные переходы):
+- Обнаружение тишины с параметрами (длительность, timeout, threshold)
+- Окончание речи с полной статистикой (длительность молчания, общая длительность, кол-во обновлений)
+- Переключение в режим grace period (soft-window)
+- Максимальное время записи достигнуто (fallback)
+
+WARNING уровень (потенциальные проблемы):
+- Необычно длинная запись (>30s) - может указывать на проблемы с grace period
+- Очень мало обновлений активности для длинной записи - может быть проблема с обнаружением активности
+
+Каждое логирование содержит достаточно контекста для отслеживания полного пути выполнения:
+- recording_duration - общая длительность текущей записи
+- silence_duration - текущая длительность молчания
+- activity_updates_count - сколько раз была обновлена активность
+- avg_interval - средний интервал между обновлениями активности
+- adaptive_timeout - выбранное значение timeout для адаптивной работы
+- expected_mode - определенный режим работы (continuous/intermittent)
 """
 
 import asyncio
@@ -160,11 +187,18 @@ class SimpleVADService:
             return
         
         current_time = time.time()
+        previous_activity = monitor_data["last_activity"]
         monitor_data["last_activity"] = current_time
         monitor_data["silence_start"] = None  # Сбрасываем начало тишины
         
+        # ✅ CTO.NEW: Детальное логирование активности пользователя
+        recording_duration = current_time - monitor_data["start_time"]
+        time_since_previous = current_time - previous_activity
+        
         if self.debug_logging:
-            logger.debug(f"VAD: Активность обновлена для канала {channel_id}")
+            logger.debug(f"VAD: Активность обновлена для канала {channel_id} "
+                        f"(recording_duration={recording_duration:.2f}s, "
+                        f"time_since_previous_activity={time_since_previous:.2f}s)")
     
     async def _monitor_silence(self, channel_id: str) -> None:
         """
@@ -174,6 +208,9 @@ class SimpleVADService:
             channel_id: ID канала Asterisk
         """
         try:
+            activity_updates_count = 0
+            activity_intervals = []
+            
             while channel_id in self.active_monitors:
                 monitor_data = self.active_monitors[channel_id]
                 
@@ -190,7 +227,12 @@ class SimpleVADService:
                 
                 # Проверяем максимальное время записи (fallback)
                 if recording_duration >= max_duration:
-                    logger.info(f"VAD: Максимальное время записи достигнуто для {channel_id} ({recording_duration:.1f}s >= {max_duration:.1f}s)")
+                    # ✅ CTO.NEW: Детальное логирование при достижении максимума
+                    logger.info(f"VAD: Максимальное время записи достигнуто для {channel_id} "
+                               f"({recording_duration:.1f}s >= {max_duration:.1f}s), "
+                               f"updates_count={activity_updates_count}")
+                    logger.debug(f"VAD monitoring: recording_duration={recording_duration:.2f}s, "
+                                f"activity_updates_count={activity_updates_count}")
                     await self._finish_recording(channel_id, "max_time_reached")
                     break
                 
@@ -209,22 +251,74 @@ class SimpleVADService:
                 else:
                     silence_timeout_threshold = silence_timeout
                 
+                # ✅ CTO.NEW: Анализ частоты обновлений активности для определения режима
+                # Вычисляем средний интервал между активностями (для логирования)
+                avg_interval = None
+                if len(activity_intervals) > 0:
+                    avg_interval = sum(activity_intervals) / len(activity_intervals)
+                
+                # ✅ CTO.NEW: DEBUG логирование мониторинга VAD
+                logger.debug(f"VAD monitoring: recording_duration={recording_duration:.2f}s, "
+                            f"silence_duration={time_since_activity:.2f}s, "
+                            f"activity_updates_count={activity_updates_count}")
+                
+                if avg_interval is not None:
+                    expected_mode = 'continuous' if avg_interval < 2.0 else 'intermittent'
+                    logger.debug(f"VAD frequency analysis: avg_interval={avg_interval:.2f}s, "
+                                f"adaptive_timeout={silence_timeout:.2f}s, "
+                                f"expected_mode={expected_mode}")
+                    
+                    if avg_interval < 2.0 and recording_duration > 3.0:
+                        logger.debug(f"VAD: Continuous speech detected (interval={avg_interval:.2f}s)")
+                
                 # Проверяем тишину
                 if time_since_activity >= silence_timeout_threshold:
                     if monitor_data["silence_start"] is None:
                         monitor_data["silence_start"] = current_time
-                        logger.info(f"VAD: Тишина обнаружена для {channel_id} (длительность: {time_since_activity:.1f}s, timeout={silence_timeout}s)")
+                        
+                        # ✅ CTO.NEW: INFO логирование при обнаружении тишины
+                        logger.info(f"VAD: Тишина обнаружена для {channel_id} "
+                                   f"(длительность: {time_since_activity:.1f}s, "
+                                   f"timeout={silence_timeout}s, "
+                                   f"threshold={silence_timeout_threshold:.2f}s)")
                     else:
                         silence_duration = current_time - monitor_data["silence_start"]
                         # Для завершения используем исходный silence_timeout (более агрессивное завершение)
                         required_silence = min(silence_timeout, silence_timeout_threshold)
                         # Также страхуемся от выхода за предел max_duration
                         if silence_duration >= required_silence or (recording_duration + silence_duration) >= max_duration:
+                            # ✅ CTO.NEW: INFO логирование при завершении записи
                             logger.info(f"VAD: Окончание речи детектировано для {channel_id} "
-                                      f"(тишина: {silence_duration:.1f}s, общая запись: {recording_duration:.1f}s)")
+                                      f"(silence_duration={silence_duration:.1f}s, "
+                                      f"recording_duration={recording_duration:.1f}s, "
+                                      f"activity_updates={activity_updates_count})")
+                            
+                            # ✅ CTO.NEW: DEBUG логирование финальной статистики
+                            if avg_interval is not None:
+                                logger.debug(f"VAD final stats: avg_interval={avg_interval:.2f}s, "
+                                           f"mode={'continuous' if avg_interval < 2.0 else 'intermittent'}")
+                            
                             await self._finish_recording(channel_id, "silence_detected")
                             break
                 else:
+                    # Отслеживаем интервалы активности когда тишина сбрасывается
+                    if monitor_data["silence_start"] is not None:
+                        # Ждали тишину, но она прервалась - захватываем интервал
+                        silence_break_duration = current_time - monitor_data["silence_start"]
+                        activity_intervals.append(silence_break_duration)
+                        activity_updates_count += 1
+                        
+                        # ✅ CTO.NEW: WARNING логирование при необычных ситуациях
+                        if len(activity_intervals) >= 2:
+                            if recording_duration > 30:
+                                logger.warning(f"VAD: Unusually long recording ({recording_duration:.1f}s), "
+                                             f"check if grace period is working, "
+                                             f"activity_updates={activity_updates_count}")
+                            
+                            if activity_updates_count < 2 and recording_duration > 5:
+                                logger.warning(f"VAD: Very few activity updates ({activity_updates_count}) "
+                                             f"for long recording ({recording_duration:.1f}s)")
+                    
                     # Сбрасываем начало тишины если есть активность
                     monitor_data["silence_start"] = None
                 
@@ -252,6 +346,10 @@ class SimpleVADService:
             recording_id = monitor_data["recording_id"]
             callback = monitor_data["callback"]
             
+            # ✅ CTO.NEW: Вычисляем итоговую статистику записи
+            current_time = time.time()
+            recording_duration = current_time - monitor_data["start_time"]
+            
             # Останавливаем мониторинг
             monitor_data["is_active"] = False
             del self.active_monitors[channel_id]
@@ -263,7 +361,12 @@ class SimpleVADService:
                 except Exception as e:
                     logger.error(f"❌ Ошибка в VAD callback для {channel_id}: {e}")
             
-            logger.info(f"✅ VAD запись завершена для {channel_id}: {reason}")
+            # ✅ CTO.NEW: INFO логирование с полной статистикой завершения
+            logger.info(f"✅ VAD запись завершена для {channel_id}: "
+                       f"reason={reason}, "
+                       f"recording_duration={recording_duration:.1f}s, "
+                       f"recording_id={recording_id}")
+            
             # Сигнализируем ожидающим корутинам
             try:
                 fut = monitor_data.get("finished_future")
@@ -366,6 +469,10 @@ class SimpleVADService:
                 logger.warning(f"soft-window: не удалось запустить мониторинг для {channel_id}")
                 return
 
+            # ✅ CTO.NEW: DEBUG логирование при запуске сегмента grace period
+            logger.debug(f"VAD: Switching to grace period mode (duration={window_seconds:.1f}s), "
+                        f"silence_timeout_override={silence_timeout_override}")
+
             # 3) Ждем завершения сегмента (тишина или достижение окна)
             fut = self.active_monitors.get(channel_id, {}).get("finished_future")
             if not fut:
@@ -379,12 +486,16 @@ class SimpleVADService:
 
             # 4) Вызываем колбэки
             try:
+                # ✅ CTO.NEW: INFO логирование при переходе между сегментами
                 if reason == "max_time_reached":
+                    logger.info(f"VAD: Recording window timeout (window={window_seconds:.1f}s), "
+                               f"continuing to next segment")
                     if on_chunk:
                         await on_chunk(channel_id, recording_filename, reason)
                     # Продолжаем следующий сегмент
                     continue
                 else:
+                    logger.info(f"VAD: Silence detected in grace period, stopping recording")
                     if on_final:
                         await on_final(channel_id, recording_filename, reason)
                     break
