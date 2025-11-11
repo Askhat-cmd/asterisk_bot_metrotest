@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Parallel TTS Processor для параллельной обработки чанков
 Цель: TTS каждого чанка запускается немедленно, параллельно с генерацией следующих
@@ -38,12 +38,22 @@ class ParallelTTSProcessor:
         self.ari_client = ari_client
         self._ari_session = None  # Будет инициализирована при первом использовании
         
+        # ✅ CTO.NEW: Конфигурация параметров очереди и параллелизма
         # Конфигурация из .env
-        self.tts_workers = int(os.getenv("TTS_PARALLEL_WORKERS", "3"))
+        self.tts_parallel_workers = int(os.getenv("TTS_PARALLEL_WORKERS", "4"))  # Увеличено с 3 до 4
         self.audio_buffer_size = int(os.getenv("AUDIO_BUFFER_SIZE", "2"))
         
+        # ✅ CTO.NEW: Параметры оптимизации очереди TTS
+        self.MIN_QUEUE_SIZE = 2  # Минимум 2 чанка для буфера (избегаем underrun)
+        self.MAX_QUEUE_SIZE = 8  # Максимум 8 чанков в очереди
+        self.TARGET_BUFFER_MS = 750  # Целевой размер буфера = 750ms аудио
+        self.CHUNK_STREAMING_SECONDS = float(os.getenv("CHUNK_STREAMING_SECONDS", "5"))  # Продолжительность чанка
+        
+        # ✅ CTO.NEW: Статистика underrun'ов для динамической подстройки
+        self._underrun_stats: Dict[str, Dict] = defaultdict(lambda: {"underrun_count": 0, "last_adjustment_time": time.time()})
+        
         # ThreadPoolExecutor для параллельных TTS запросов
-        self.tts_pool = ThreadPoolExecutor(max_workers=self.tts_workers)
+        self.tts_pool = ThreadPoolExecutor(max_workers=self.tts_parallel_workers)
         
         # Управление очередями по каналам
         self.playback_queues: Dict[str, List[Dict]] = defaultdict(list)
@@ -55,7 +65,78 @@ class ParallelTTSProcessor:
         # Опциональный колбэк: вызывается, когда для канала больше нет активных TTS задач и очередь пуста
         self.on_tts_idle: Optional[Any] = None
         
-        logger.info(f"🔄 ParallelTTSProcessor инициализирован с {self.tts_workers} TTS workers")
+        logger.info(f"🔄 ParallelTTSProcessor инициализирован:")
+        logger.info(f"   - TTS workers: {self.tts_parallel_workers} (увеличено для параллелизма)")
+        logger.info(f"   - Queue size range: {self.MIN_QUEUE_SIZE}-{self.MAX_QUEUE_SIZE} chunks")
+        logger.info(f"   - Target buffer: {self.TARGET_BUFFER_MS}ms аудио")
+    
+    # ✅ CTO.NEW: Методы для мониторинга и динамической подстройки очереди
+    async def _get_queue_size(self, channel_id: str) -> int:
+        """Получить текущий размер очереди для канала"""
+        return len(self.playback_queues.get(channel_id, []))
+    
+    async def _log_queue_stats(self, channel_id: str):
+        """Логировать статистику очереди для отладки"""
+        queue_size = await self._get_queue_size(channel_id)
+        queue_percent = (queue_size / self.MAX_QUEUE_SIZE) * 100 if self.MAX_QUEUE_SIZE > 0 else 0
+        
+        # ✅ CTO.NEW: Логирование статуса очереди с разными уровнями
+        if queue_size < self.MIN_QUEUE_SIZE:
+            # ✅ CTO.NEW: WARNING - очередь слишком мала, риск underrun
+            logger.warning(f"⚠️  TTS: Low queue size: {queue_size}/{self.MAX_QUEUE_SIZE} "
+                          f"({queue_percent:.1f}%) - risk of underrun!")
+            # Отметить underrun для динамической подстройки
+            self._underrun_stats[channel_id]["underrun_count"] += 1
+        elif queue_size >= self.MAX_QUEUE_SIZE:
+            # ✅ CTO.NEW: DEBUG - очередь полная, throttling
+            logger.debug(f"📊 TTS: Queue full: {queue_size}/{self.MAX_QUEUE_SIZE} - throttling generation")
+        else:
+            # ✅ CTO.NEW: DEBUG - нормальный размер очереди
+            logger.debug(f"📊 TTS: Queue size: {queue_size}/{self.MAX_QUEUE_SIZE} ({queue_percent:.1f}%)")
+    
+    async def _adjust_worker_count(self, channel_id: str):
+        """
+        ✅ CTO.NEW: Динамически подстраивать количество воркеров в зависимости от:
+        - Частоты underrun'ов
+        - Размера очереди
+        - Скорости генерации TTS
+        """
+        try:
+            # Проверяем статистику underrun'ов
+            underrun_count = self._underrun_stats[channel_id].get("underrun_count", 0)
+            last_adjustment = self._underrun_stats[channel_id].get("last_adjustment_time", time.time())
+            time_since_adjustment = time.time() - last_adjustment
+            
+            # Подстраиваем только если прошло достаточно времени (избегаем слишком частых изменений)
+            if time_since_adjustment < 5.0:
+                return
+            
+            queue_size = await self._get_queue_size(channel_id)
+            
+            # ✅ CTO.NEW: Увеличить воркеры если много underrun'ов
+            if underrun_count > 3:
+                new_workers = min(6, self.tts_parallel_workers + 1)
+                if new_workers != self.tts_parallel_workers:
+                    logger.info(f"⬆️  TTS: Increasing workers from {self.tts_parallel_workers} to {new_workers} "
+                               f"(underrun_count={underrun_count})")
+                    self.tts_parallel_workers = new_workers
+                    # Пересоздаем ThreadPoolExecutor с новым количеством воркеров
+                    self.tts_pool = ThreadPoolExecutor(max_workers=self.tts_parallel_workers)
+                    self._underrun_stats[channel_id]["last_adjustment_time"] = time.time()
+                    self._underrun_stats[channel_id]["underrun_count"] = 0  # Сбросить счетчик
+            
+            # ✅ CTO.NEW: Снизить воркеры если нет underrun'ов и очередь мала
+            elif underrun_count == 0 and queue_size < self.MIN_QUEUE_SIZE:
+                new_workers = max(3, self.tts_parallel_workers - 1)
+                if new_workers != self.tts_parallel_workers:
+                    logger.debug(f"⬇️  TTS: Decreasing workers from {self.tts_parallel_workers} to {new_workers} "
+                                f"(queue_size={queue_size})")
+                    self.tts_parallel_workers = new_workers
+                    self.tts_pool = ThreadPoolExecutor(max_workers=self.tts_parallel_workers)
+                    self._underrun_stats[channel_id]["last_adjustment_time"] = time.time()
+        
+        except Exception as e:
+            logger.debug(f"Error in _adjust_worker_count: {e}")
     
     async def process_chunk_immediate(self, channel_id: str, chunk_data: Dict[str, Any]):
         """
@@ -162,7 +243,11 @@ class ParallelTTSProcessor:
         # Сортируем по номеру чанка для правильного порядка
         self.playback_queues[channel_id].sort(key=lambda x: x["chunk_num"])
         
-        logger.debug(f"📋 Playback queue for {channel_id}: {len(self.playback_queues[channel_id])} items")
+        # ✅ CTO.NEW: Логировать статистику очереди
+        await self._log_queue_stats(channel_id)
+        
+        # ✅ CTO.NEW: Динамически подстраивать количество воркеров
+        await self._adjust_worker_count(channel_id)
         
         # Запускаем обработку очереди если не занят
         if not self.playback_busy[channel_id]:
@@ -330,6 +415,10 @@ class ParallelTTSProcessor:
             # Сбрасываем флаг занятости
             self.playback_busy[channel_id] = False
             
+            # ✅ CTO.NEW: Сбросить статистику underrun'ов при очистке очередей
+            if channel_id in self._underrun_stats:
+                self._underrun_stats[channel_id]["underrun_count"] = 0
+            
             # ✅ КРИТИЧНО: Сбрасываем метрику first_audio для нового вопроса
             if channel_id in self.performance_metrics:
                 if "first_audio_time" in self.performance_metrics[channel_id]:
@@ -346,10 +435,20 @@ class ParallelTTSProcessor:
     
     def get_queue_status(self, channel_id: str) -> Dict[str, Any]:
         """Возвращает статус очередей для канала"""
+        queue_size = len(self.playback_queues[channel_id])
+        # ✅ CTO.NEW: Добавлен расширенный статус с параметрами очереди и underrun метриками
         return {
-            "playback_queue_size": len(self.playback_queues[channel_id]),
+            "playback_queue_size": queue_size,
             "active_tts_tasks": len(self.tts_tasks[channel_id]),
             "playback_busy": self.playback_busy[channel_id],
-            "queued_chunks": [item["chunk_num"] for item in self.playback_queues[channel_id]]
+            "queued_chunks": [item["chunk_num"] for item in self.playback_queues[channel_id]],
+            # ✅ CTO.NEW: Параметры очереди
+            "min_queue_size": self.MIN_QUEUE_SIZE,
+            "max_queue_size": self.MAX_QUEUE_SIZE,
+            "target_buffer_ms": self.TARGET_BUFFER_MS,
+            "tts_workers": self.tts_parallel_workers,
+            # ✅ CTO.NEW: Статистика underrun'ов
+            "underrun_count": self._underrun_stats[channel_id].get("underrun_count", 0),
+            "queue_health": "low" if queue_size < self.MIN_QUEUE_SIZE else "full" if queue_size >= self.MAX_QUEUE_SIZE else "normal"
         }
 
