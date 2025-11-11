@@ -202,12 +202,30 @@ class SimpleVADService:
                 # Используем кастомный timeout из monitor_data, если есть, иначе дефолтный
                 silence_timeout = monitor_data.get("silence_timeout", self.silence_timeout)
                 
+                # ✅ CTO.NEW: Grace period для очень длинных фраз
+                # Вычисляем временные параметры для определения характера речи
+                time_since_last_activity = current_time - monitor_data["last_activity"]
+                
+                # ✅ CTO.NEW: Адаптивный timeout в зависимости от длительности записи
+                adaptive_timeout = silence_timeout
+                
+                # ✅ CTO.NEW: Grace period активирован для очень длинных фраз (> 8 сек)
+                if recording_duration > 8.0:
+                    adaptive_timeout = 4.0
+                    logger.warning(f"VAD: GRACE PERIOD - очень длинная фраза ({recording_duration:.1f}s > 8s), "
+                                   f"timeout расширен до 4.0s, time_since_activity={time_since_activity:.1f}s")
+                # ✅ CTO.NEW: Фраза 5-8 сек и речь более-менее непрерывная
+                elif recording_duration > 5.0 and time_since_activity < 1.5:
+                    adaptive_timeout = 3.5
+                    if self.debug_logging:
+                        logger.debug(f"VAD: Фраза 5-8s (dur={recording_duration:.1f}s), timeout=3.5s, time_since_activity={time_since_activity:.2f}s")
+                
                 # ✅ ЗАЩИТА: Используем отношение к ТЕКУЩЕМУ max_duration (например, 5s для soft-window)
                 # Это избегает слишком большого порога для коротких окон (иначе silence_timeout * 1.5 > max_duration)
                 if recording_duration < max_duration / 3:
-                    silence_timeout_threshold = silence_timeout * 1.5
+                    silence_timeout_threshold = adaptive_timeout * 1.5
                 else:
-                    silence_timeout_threshold = silence_timeout
+                    silence_timeout_threshold = adaptive_timeout
                 
                 # Проверяем тишину
                 if time_since_activity >= silence_timeout_threshold:

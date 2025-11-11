@@ -1,0 +1,37 @@
+[1mdiff --git a/asterisk-vox-bot/app/backend/services/simple_vad_service.py b/asterisk-vox-bot/app/backend/services/simple_vad_service.py[m
+[1mindex cc4ed6e..d60c303 100644[m
+[1m--- a/asterisk-vox-bot/app/backend/services/simple_vad_service.py[m
+[1m+++ b/asterisk-vox-bot/app/backend/services/simple_vad_service.py[m
+[36m@@ -202,12 +202,30 @@[m [mclass SimpleVADService:[m
+                 # Используем кастомный timeout из monitor_data, если есть, иначе дефолтный[m
+                 silence_timeout = monitor_data.get("silence_timeout", self.silence_timeout)[m
+                 [m
+[32m+[m[32m                # ✅ CTO.NEW: Grace period для очень длинных фраз[m
+[32m+[m[32m                # Вычисляем временные параметры для определения характера речи[m
+[32m+[m[32m                time_since_last_activity = current_time - monitor_data["last_activity"][m
+[32m+[m[41m                [m
+[32m+[m[32m                # ✅ CTO.NEW: Адаптивный timeout в зависимости от длительности записи[m
+[32m+[m[32m                adaptive_timeout = silence_timeout[m
+[32m+[m[41m                [m
+[32m+[m[32m                # ✅ CTO.NEW: Grace period активирован для очень длинных фраз (> 8 сек)[m
+[32m+[m[32m                if recording_duration > 8.0:[m
+[32m+[m[32m                    adaptive_timeout = 4.0[m
+[32m+[m[32m                    logger.warning(f"VAD: GRACE PERIOD - очень длинная фраза ({recording_duration:.1f}s > 8s), "[m
+[32m+[m[32m                                   f"timeout расширен до 4.0s, time_since_activity={time_since_activity:.1f}s")[m
+[32m+[m[32m                # ✅ CTO.NEW: Фраза 5-8 сек и речь более-менее непрерывная[m
+[32m+[m[32m                elif recording_duration > 5.0 and time_since_activity < 1.5:[m
+[32m+[m[32m                    adaptive_timeout = 3.5[m
+[32m+[m[32m                    if self.debug_logging:[m
+[32m+[m[32m                        logger.debug(f"VAD: Фраза 5-8s (dur={recording_duration:.1f}s), timeout=3.5s, time_since_activity={time_since_activity:.2f}s")[m
+[32m+[m[41m                [m
+                 # ✅ ЗАЩИТА: Используем отношение к ТЕКУЩЕМУ max_duration (например, 5s для soft-window)[m
+                 # Это избегает слишком большого порога для коротких окон (иначе silence_timeout * 1.5 > max_duration)[m
+                 if recording_duration < max_duration / 3:[m
+[31m-                    silence_timeout_threshold = silence_timeout * 1.5[m
+[32m+[m[32m                    silence_timeout_threshold = adaptive_timeout * 1.5[m
+                 else:[m
+[31m-                    silence_timeout_threshold = silence_timeout[m
+[32m+[m[32m                    silence_timeout_threshold = adaptive_timeout[m
+                 [m
+                 # Проверяем тишину[m
+                 if time_since_activity >= silence_timeout_threshold:[m
