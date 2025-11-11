@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Parallel TTS Processor для параллельной обработки чанков
 Цель: TTS каждого чанка запускается немедленно, параллельно с генерацией следующих
@@ -39,8 +39,11 @@ class ParallelTTSProcessor:
         self._ari_session = None  # Будет инициализирована при первом использовании
         
         # Конфигурация из .env
-        self.tts_workers = int(os.getenv("TTS_PARALLEL_WORKERS", "3"))
+        # ✅ CTO.NEW: Увеличение параллелизма для buffered streaming
+        self.tts_workers = int(os.getenv("TTS_PARALLEL_WORKERS", "4"))
         self.audio_buffer_size = int(os.getenv("AUDIO_BUFFER_SIZE", "2"))
+        # ✅ CTO.NEW: Количество чанков для предварительной буферизации
+        self.prebuffer_chunks = int(os.getenv("TTS_PREBUFFER_CHUNKS", "2"))
         
         # ThreadPoolExecutor для параллельных TTS запросов
         self.tts_pool = ThreadPoolExecutor(max_workers=self.tts_workers)
@@ -49,14 +52,106 @@ class ParallelTTSProcessor:
         self.playback_queues: Dict[str, List[Dict]] = defaultdict(list)
         self.playback_busy: Dict[str, bool] = defaultdict(bool)
         self.tts_tasks: Dict[str, List[asyncio.Task]] = defaultdict(list)
+        # ✅ CTO.NEW: Флаг завершения генерации TTS чанков (используется при prebuffering)
+        self.tts_generation_complete: Dict[str, bool] = defaultdict(bool)
         
         # Метрики производительности
         self.performance_metrics: Dict[str, Dict] = defaultdict(dict)
         # Опциональный колбэк: вызывается, когда для канала больше нет активных TTS задач и очередь пуста
         self.on_tts_idle: Optional[Any] = None
         
-        logger.info(f"🔄 ParallelTTSProcessor инициализирован с {self.tts_workers} TTS workers")
+        logger.info(f"🔄 ParallelTTSProcessor инициализирован с {self.tts_workers} TTS workers и prebuffer={self.prebuffer_chunks} chunks")
     
+    async def process_chunks_with_buffering(self, channel_id: str, chunks: List[Dict[str, Any]]):
+        """
+        ✅ CTO.NEW: Обрабатывает чанки с предварительной буферизацией (Buffered Streaming).
+        
+        Ключевая логика:
+        1. Сначала генерируем первые 2 чанка ДО начала playback (HIGH PRIORITY)
+        2. Начинаем воспроизведение только ПОСЛЕ буферизации
+        3. Генерируем остальные чанки параллельно ВО ВРЕМЯ playback (LOW PRIORITY)
+        
+        Цель: избежать Buffer underrun при медленном TTS
+        
+        Args:
+            channel_id: ID канала для воспроизведения
+            chunks: Список чанков с текстом и метаданными
+        """
+        logger.debug(f"TTS: Starting Buffered Streaming for {channel_id} with {len(chunks)} chunks")
+        
+        # ✅ CTO.NEW: Определяем количество чанков для предварительной буферизации
+        prebuffer_count = min(self.prebuffer_chunks, len(chunks))
+        
+        try:
+            # ✅ CTO.NEW: Шаг 1: Предварительно генерировать первые N чанков (HIGH PRIORITY)
+            logger.debug(f"TTS: Prebuffering {prebuffer_count} chunks before playback")
+            
+            initial_buffer = []
+            for i in range(prebuffer_count):
+                chunk_data = chunks[i]
+                chunk_num = chunk_data.get("chunk_number", i + 1)
+                text = chunk_data.get("text", "")
+                is_first = chunk_data.get("is_first", i == 0)
+                
+                try:
+                    # ✅ CTO.NEW: Высокий приоритет - синтезировать ДО начала playback
+                    logger.debug(f"TTS: Prebuffering chunk {i+1}/{prebuffer_count}")
+                    
+                    audio_data = await self.grpc_tts.synthesize_chunk_fast(text)
+                    
+                    playback_item = {
+                        "chunk_num": chunk_num,
+                        "audio_data": audio_data,
+                        "text": text,
+                        "tts_time": 0,  # Будет заполнено при синтезе
+                        "is_first": is_first,
+                        "ready_time": time.time()
+                    }
+                    
+                    initial_buffer.append(playback_item)
+                    logger.debug(f"TTS: Prebuffered chunk {i+1}/{prebuffer_count}: '{text[:30]}...'")
+                    
+                except Exception as e:
+                    logger.error(f"TTS: Error prebuffering chunk {i}: {e}")
+                    return False
+            
+            # ✅ CTO.NEW: Шаг 2: Добавляем буферизованные чанки в очередь
+            for item in initial_buffer:
+                await self._enqueue_playback(channel_id, item)
+            
+            # ✅ CTO.NEW: Шаг 3: Начать playback только ПОСЛЕ буферизации
+            if initial_buffer:
+                logger.info(f"TTS: Starting playback with {len(initial_buffer)} buffered chunks")
+                # Очередь уже содержит buффериованные чанки, поэтому playback начнет автоматически
+            
+            # ✅ CTO.NEW: Шаг 4: Генерировать остальные чанки параллельно (LOW PRIORITY)
+            remaining_chunks = chunks[prebuffer_count:]
+            if remaining_chunks:
+                for i, chunk_data in enumerate(remaining_chunks, start=prebuffer_count):
+                    chunk_num = chunk_data.get("chunk_number", i + 1)
+                    text = chunk_data.get("text", "")
+                    is_first = chunk_data.get("is_first", False)
+                    
+                    try:
+                        # ✅ CTO.NEW: Запускаем TTS параллельно (не блокируем)
+                        tts_task = asyncio.create_task(
+                            self._synthesize_remaining_chunk_async(channel_id, chunk_num, text, is_first)
+                        )
+                        
+                        self.tts_tasks[channel_id].append(tts_task)
+                        tts_task.add_done_callback(lambda t, cid=channel_id: self._on_tts_task_done(cid, t))
+                        
+                        logger.debug(f"TTS: Queued parallel synthesis for chunk {i+1}/{len(chunks)}")
+                        
+                    except Exception as e:
+                        logger.error(f"TTS: Error queuing chunk {i}: {e}")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"TTS: Buffered streaming error: {e}")
+            return False
+
     async def process_chunk_immediate(self, channel_id: str, chunk_data: Dict[str, Any]):
         """
         Обрабатывает чанк НЕМЕДЛЕННО, параллельно с генерацией следующих.
@@ -153,6 +248,40 @@ class ParallelTTSProcessor:
             
         except Exception as e:
             logger.error(f"❌ Async TTS error chunk {chunk_num}: {e}")
+    
+    async def _synthesize_remaining_chunk_async(self, channel_id: str, chunk_num: int, text: str, is_first: bool):
+        """
+        ✅ CTO.NEW: Async TTS для оставшихся чанков (используется при Buffered Streaming).
+        
+        Это вариант _synthesize_chunk_async для чанков, которые генерируются
+        параллельно во время воспроизведения буферизованных чанков.
+        """
+        
+        tts_start = time.time()
+        
+        try:
+            logger.debug(f"TTS: Starting synthesis for remaining chunk {chunk_num}")
+            
+            # gRPC TTS (параллельно с воспроизведением)
+            audio_data = await self.grpc_tts.synthesize_chunk_fast(text)
+            tts_time = time.time() - tts_start
+            
+            logger.debug(f"TTS: Queued chunk {chunk_num}/{chunk_num}: {tts_time:.2f}s, size={len(audio_data)} bytes")
+            
+            # Добавляем готовый аудио в очередь воспроизведения
+            playback_item = {
+                "chunk_num": chunk_num,
+                "audio_data": audio_data,
+                "text": text,
+                "tts_time": tts_time,
+                "is_first": is_first,
+                "ready_time": time.time()
+            }
+            
+            await self._enqueue_playback(channel_id, playback_item)
+            
+        except Exception as e:
+            logger.error(f"TTS: Error generating remaining chunk {chunk_num}: {e}")
     
     async def _enqueue_playback(self, channel_id: str, playback_item: Dict[str, Any]):
         """Добавляет готовый аудио в очередь воспроизведения"""
@@ -329,6 +458,10 @@ class ParallelTTSProcessor:
             
             # Сбрасываем флаг занятости
             self.playback_busy[channel_id] = False
+            
+            # ✅ CTO.NEW: Сбрасываем флаг завершения генерации при очистке
+            if channel_id in self.tts_generation_complete:
+                del self.tts_generation_complete[channel_id]
             
             # ✅ КРИТИЧНО: Сбрасываем метрику first_audio для нового вопроса
             if channel_id in self.performance_metrics:
