@@ -95,7 +95,9 @@ class SimpleVADService:
                 "silence_timeout": custom_silence_timeout,  # Кастомный timeout для этого мониторинга
                 "max_duration": custom_max_duration,  # Кастомное max_duration для этого мониторинга
                 "finished_future": asyncio.get_event_loop().create_future(),  # Для ожидания завершения VAD снаружи
-                "finish_reason": None
+                "finish_reason": None,
+                "activity_updates": [],  # ✅ CTO.NEW: Сохраняем историю обновлений активности для адаптивного таймаута (Experiment 3)
+                "last_timeout_mode": None  # ✅ CTO.NEW: Запоминаем последний режим таймаута для контроля логирования (Experiment 3)
             }
             
             self.active_monitors[channel_id] = monitor_data
@@ -162,6 +164,11 @@ class SimpleVADService:
         current_time = time.time()
         monitor_data["last_activity"] = current_time
         monitor_data["silence_start"] = None  # Сбрасываем начало тишины
+        activity_updates = monitor_data.get("activity_updates")  # ✅ CTO.NEW: Получаем историю активности для адаптивного анализа (Experiment 3)
+        if activity_updates is not None:  # ✅ CTO.NEW: Проверяем наличие буфера активности (Experiment 3)
+            activity_updates.append(current_time)  # ✅ CTO.NEW: Фиксируем момент активности для расчета частоты (Experiment 3)
+            if len(activity_updates) > 50:  # ✅ CTO.NEW: Ограничиваем объем буфера, чтобы избегать роста памяти (Experiment 3)
+                del activity_updates[:-50]  # ✅ CTO.NEW: Храним только последние 50 обновлений для анализа (Experiment 3)
         
         if self.debug_logging:
             logger.debug(f"VAD: Активность обновлена для канала {channel_id}")
@@ -201,23 +208,52 @@ class SimpleVADService:
                 
                 # Используем кастомный timeout из monitor_data, если есть, иначе дефолтный
                 silence_timeout = monitor_data.get("silence_timeout", self.silence_timeout)
+                activity_updates = monitor_data.setdefault("activity_updates", [])  # ✅ CTO.NEW: Храним таймстампы активности для частотного анализа (Experiment 3)
+                adaptive_timeout = max(2.0, silence_timeout)  # ✅ CTO.NEW: Базовый таймаут учитывает исходное значение и минимальную границу из Experiment 3
+                avg_interval = None  # ✅ CTO.NEW: Средний интервал между обновлениями активности для адаптивной логики (Experiment 3)
+                if len(activity_updates) >= 2:  # ✅ CTO.NEW: Рассчитываем частоту только при наличии достаточного количества наблюдений (Experiment 3)
+                    intervals = [activity_updates[i] - activity_updates[i - 1] for i in range(1, len(activity_updates))]  # ✅ CTO.NEW: Интервалы между обновлениями активности (Experiment 3)
+                    if intervals:  # ✅ CTO.NEW: Проверка на возможность вычисления среднего интервала (Experiment 3)
+                        avg_interval = sum(intervals) / len(intervals)  # ✅ CTO.NEW: Средний интервал помогает определить режим речи (Experiment 3)
+                timeout_mode = "default"  # ✅ CTO.NEW: Режим адаптивного таймаута по умолчанию (Experiment 3)
+                if avg_interval is not None and avg_interval < 2.0 and recording_duration > 3.0:  # ✅ CTO.NEW: Непрерывная речь с высокой частотой обновлений → увеличиваем таймаут до 3.5s (Experiment 3)
+                    adaptive_timeout = 3.5  # ✅ CTO.NEW: Таймаут для непрерывной речи согласно Experiment 3
+                    timeout_mode = "continuous_speech"  # ✅ CTO.NEW: Фиксируем режим непрерывной речи (Experiment 3)
+                elif recording_duration > 8.0:  # ✅ CTO.NEW: Очень длинная фраза требует большего окна ожидания (Experiment 3)
+                    adaptive_timeout = 4.0  # ✅ CTO.NEW: Таймаут для длинных фраз согласно Experiment 3
+                    timeout_mode = "long_phrase"  # ✅ CTO.NEW: Фиксируем режим длинной фразы (Experiment 3)
+                else:
+                    adaptive_timeout = max(2.0, silence_timeout)  # ✅ CTO.NEW: Обычный режим использует стандартный таймаут 2s или больше (Experiment 3)
+                    timeout_mode = "default"  # ✅ CTO.NEW: Подтверждаем стандартный режим (Experiment 3)
+                should_debug_log = self.debug_logging and logger.isEnabledFor(logging.DEBUG)  # ✅ CTO.NEW: Логируем параметры только при активном DEBUG-режиме (Experiment 3)
+                if should_debug_log and monitor_data.get("last_timeout_mode") != timeout_mode:  # ✅ CTO.NEW: Сообщаем о смене режима таймаута при изменении (Experiment 3)
+                    if timeout_mode == "continuous_speech":  # ✅ CTO.NEW: Сообщаем о выборе режима непрерывной речи (Experiment 3)
+                        logger.debug(f"VAD: Непрерывная речь, timeout={adaptive_timeout}s, avg_interval={(avg_interval if avg_interval is not None else float('nan')):.2f}s")  # ✅ CTO.NEW: Логирование параметров для отладки (Experiment 3)
+                    elif timeout_mode == "long_phrase":  # ✅ CTO.NEW: Сообщаем о выборе режима длинной фразы (Experiment 3)
+                        logger.debug("VAD: Очень длинная фраза (>8s), timeout=4.0s")  # ✅ CTO.NEW: Логирование параметров для отладки (Experiment 3)
+                    else:
+                        logger.debug(f"VAD: Обычный режим, timeout={adaptive_timeout:.1f}s")  # ✅ CTO.NEW: Логирование параметров для отладки (Experiment 3)
+                monitor_data["last_timeout_mode"] = timeout_mode  # ✅ CTO.NEW: Обновляем актуальный режим независимо от логирования (Experiment 3)
+                if should_debug_log:  # ✅ CTO.NEW: Логируем статистику адаптивного таймаута в режиме DEBUG (Experiment 3)
+                    avg_interval_for_log = avg_interval if avg_interval is not None else float("nan")  # ✅ CTO.NEW: Значение для итоговой статистики адаптивного VAD (Experiment 3)
+                    logger.debug(f"VAD stats: recording_duration={recording_duration:.2f}s, activity_updates={len(activity_updates)}, avg_interval={avg_interval_for_log:.2f}s, adaptive_timeout={adaptive_timeout:.2f}s")  # ✅ CTO.NEW: Детальное логирование статистики адаптивного VAD (Experiment 3)
                 
                 # ✅ ЗАЩИТА: Используем отношение к ТЕКУЩЕМУ max_duration (например, 5s для soft-window)
                 # Это избегает слишком большого порога для коротких окон (иначе silence_timeout * 1.5 > max_duration)
                 if recording_duration < max_duration / 3:
-                    silence_timeout_threshold = silence_timeout * 1.5
+                    silence_timeout_threshold = adaptive_timeout * 1.5
                 else:
-                    silence_timeout_threshold = silence_timeout
+                    silence_timeout_threshold = adaptive_timeout
                 
                 # Проверяем тишину
                 if time_since_activity >= silence_timeout_threshold:
                     if monitor_data["silence_start"] is None:
                         monitor_data["silence_start"] = current_time
-                        logger.info(f"VAD: Тишина обнаружена для {channel_id} (длительность: {time_since_activity:.1f}s, timeout={silence_timeout}s)")
+                        logger.info(f"VAD: Тишина обнаружена для {channel_id} (длительность: {time_since_activity:.1f}s, timeout={adaptive_timeout}s)")
                     else:
                         silence_duration = current_time - monitor_data["silence_start"]
-                        # Для завершения используем исходный silence_timeout (более агрессивное завершение)
-                        required_silence = min(silence_timeout, silence_timeout_threshold)
+                        # ✅ CTO.NEW: Для завершения используем адаптивный таймаут, как предписано Experiment 3
+                        required_silence = min(adaptive_timeout, silence_timeout_threshold)
                         # Также страхуемся от выхода за предел max_duration
                         if silence_duration >= required_silence or (recording_duration + silence_duration) >= max_duration:
                             logger.info(f"VAD: Окончание речи детектировано для {channel_id} "
